@@ -1,3 +1,4 @@
+import { useAuth } from '@/shared/auth/AuthContext';
 import { SegmentedControl } from '@mantine/core';
 import {
   Icon2fa,
@@ -46,6 +47,8 @@ export function NavbarSegmented() {
     </a>
   ));
 
+  const { logout } = useAuth();
+
   return (
     <nav className={styles.navbar}>
       <div>
@@ -64,7 +67,9 @@ export function NavbarSegmented() {
       <div className={styles.navbarMain}>{links}</div>
 
       <div className={styles.footer}>
-        <a href="#" className={styles.link} onClick={(event) => event.preventDefault()}>
+        <a href="#" className={styles.link} onClick={() => {
+          logout();
+        }}>
           <IconLogout className={styles.linkIcon} stroke={1.5} />
           <span>Выйти</span>
         </a>

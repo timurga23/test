@@ -1,9 +1,8 @@
 import { FC } from 'react';
-import { RouterProvider } from 'react-router-dom';
 
-import { router } from '@/pages/router';
-import { NavbarSegmented } from '@/widgets';
-import { createTheme, Flex, MantineProvider } from '@mantine/core';
+import { AuthProvider } from '@/shared/auth/AuthContext';
+import { AuthGuard } from '@/widgets';
+import { createTheme, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 
 const theme = createTheme({
@@ -13,13 +12,9 @@ const theme = createTheme({
 export const App: FC = () => {
   return (
     <MantineProvider theme={theme}>
-      <Flex wrap={'nowrap'}>
-        {/* Левое меню всегда отображается */}
-        <NavbarSegmented />
-
-        {/* Основной контент меняется в зависимости от маршрута */}
-        <RouterProvider router={router} />
-      </Flex>
+      <AuthProvider>
+        <AuthGuard />
+      </AuthProvider>
     </MantineProvider>
   );
 };
