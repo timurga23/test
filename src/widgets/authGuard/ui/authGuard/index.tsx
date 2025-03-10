@@ -1,5 +1,5 @@
 import { router } from '@/pages/router';
-import { useAuth } from '@/shared/auth/AuthContext';
+import { useAuth } from '@/shared/lib/context/auth';
 import { LoginModal } from '@/widgets/loginModal/ui/loginModal';
 import { NavbarSegmented } from '@/widgets/menu/ui/menu';
 import { Flex } from '@mantine/core';

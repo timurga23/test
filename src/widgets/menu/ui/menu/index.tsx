@@ -1,5 +1,6 @@
-import { useAuth } from '@/shared/auth/AuthContext';
-import { SegmentedControl } from '@mantine/core';
+// import { useAuth } from '@/shared/auth/AuthContext';
+import { SwitchRoles } from '@/features/swithRoles/ui';
+import { Button } from '@mantine/core';
 import {
   Icon2fa,
   IconBellRinging,
@@ -33,7 +34,9 @@ const tabs = {
 };
 
 export function NavbarSegmented() {
-  const [section, setSection] = useState<'account' | 'general'>('account');
+  const [section, _] = useState<'account' | 'general'>('account');
+  // const { logout } = useAuth();
+  // const user = userStore((state) => state.user);
 
   const links = tabs[section].map((item) => (
     <a
@@ -47,32 +50,23 @@ export function NavbarSegmented() {
     </a>
   ));
 
-  const { logout } = useAuth();
-
   return (
     <nav className={styles.navbar}>
       <div>
-        <SegmentedControl
-          value={section}
-          onChange={(value: any) => setSection(value)}
-          transitionTimingFunction="ease"
-          fullWidth
-          data={[
-            { label: 'Директор', value: 'account' },
-            { label: 'Оператор', value: 'general' },
-          ]}
-        />
+        <SwitchRoles />
       </div>
 
       <div className={styles.navbarMain}>{links}</div>
 
       <div className={styles.footer}>
-        <a href="#" className={styles.link} onClick={() => {
-          logout();
-        }}>
-          <IconLogout className={styles.linkIcon} stroke={1.5} />
+        <Button
+          onClick={() => {
+            // logout();
+          }}
+          leftSection={<IconLogout />}
+        >
           <span>Выйти</span>
-        </a>
+        </Button>
       </div>
     </nav>
   );

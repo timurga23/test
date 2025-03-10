@@ -16,4 +16,11 @@ module.exports = {
     ],
   },
   extends: ['plugin:prettier/recommended'],
+  editor: {
+    codeActionsOnSave: {
+      source: {
+        organizeImports: true,
+      },
+    },
+  },
 };

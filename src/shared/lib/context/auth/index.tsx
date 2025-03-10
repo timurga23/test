@@ -1,7 +1,7 @@
 import { router } from '@/pages/router';
-import { createContext, FC, PropsWithChildren, useContext, useEffect, useState } from 'react';
-import { getAuthToken } from '../lib';
-import { routes } from '../routes';
+import { createContext, FC, PropsWithChildren, useContext, useState, useEffect } from 'react';
+import { routes } from '../../../routes';
+import { getAuthToken, removeAuthToken, saveAuthToken } from '../../auth-token';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -13,25 +13,29 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const login = () => {
+  useEffect(() => {
+    const token = getAuthToken();
+    setIsAuthenticated(!!token);
+    setIsInitialized(true);
+  }, []);
+
+  const login = (token: string) => {
     setIsAuthenticated(true);
-    // saveAuthToken(token);
+    saveAuthToken(token);
     router.navigate(routes.WELCOME);
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    // removeAuthToken();
+    removeAuthToken();
     router.navigate(routes.LOGIN);
   };
 
-  useEffect(() => {
-    const res = !!getAuthToken();
-    if (res) {
-      setIsAuthenticated(true);
-    }
-  }, []);
+  if (!isInitialized) {
+    return null; // или loading indicator
+  }
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

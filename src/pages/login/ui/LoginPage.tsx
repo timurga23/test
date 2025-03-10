@@ -5,6 +5,6 @@ import { LoginModal } from '@/widgets'
 
 export const LoginPage: FC = () => {
   return (
-      <LoginModal />
+    <LoginModal />
   )
 }
