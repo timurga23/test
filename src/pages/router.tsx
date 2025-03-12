@@ -1,12 +1,11 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import { routes } from '@/shared/routes';
+import { routes } from '@/shared';
 
 import { EmployersPage } from './employers';
+import { LoginPage } from './login';
 import { PositionsPage } from './positions/ui/page';
 import { WelcomePage } from './welcome';
-import { CustomerSpecPage } from './customer-spec';
-import { LoginPage } from './login';
 
 export const router = createBrowserRouter([
   {
@@ -20,10 +19,6 @@ export const router = createBrowserRouter([
   {
     path: routes.EMPLOYERS,
     element: <EmployersPage />,
-  },
-  {
-    path: routes.CUSTOMER_SPEC,
-    element: <CustomerSpecPage />,
   },
   {
     path: routes.LOGIN,

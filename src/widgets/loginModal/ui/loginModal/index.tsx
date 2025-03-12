@@ -1,9 +1,8 @@
+import { useLoginMutation, userStore } from '@/enteties';
+import { useAuth } from '@/shared';
 import { Button, PasswordInput, Stack, TextInput, Title } from '@mantine/core';
 import { useEffect, useState } from 'react';
-import { useLoginMutation } from '@/enteties/user/api/queries';
 import { toast } from 'react-toastify';
-import { useAuth } from '@/shared/lib/context/auth';
-import { userStore } from '@/enteties/user';
 
 export function LoginModal() {
   const [email, setEmail] = useState('');

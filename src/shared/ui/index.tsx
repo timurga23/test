@@ -1,2 +1,2 @@
-export { TableSort } from './table/table';
-
+export * from './table/table';
+export * from './universal-form/universal-form';

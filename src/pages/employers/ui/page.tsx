@@ -1,46 +1,60 @@
-import { EMPLOYEE_TABLE_NAME } from '@/enteties/employee/model/_constant';
-import { Employee } from '@/enteties/employee/model/types';
-import { useTableData } from '@/enteties/user-table/api/queries';
-import { TableSort } from '@/shared/ui/table/table';
-import { Flex, Text } from '@mantine/core';
-import { FC, useEffect } from 'react';
-import { toast } from 'react-toastify';
+import {
+  EMPLOYEE_POSITION,
+  EMPLOYEE_TABLE_NAME,
+  Employee,
+  EmployeePosition,
+  POSITION_TABLE_NAME,
+  Position,
+  useTableData,
+} from '@/enteties';
+import { EmployerTable } from '@/widgets';
+import { Flex, Loader, Text } from '@mantine/core';
+import { FC } from 'react';
 
 export const EmployersPage: FC = () => {
-  const { data: employees, isLoading, isError } = useTableData<Employee>(EMPLOYEE_TABLE_NAME);
+  const {
+    data: employees,
+    isError: isErrorEmployees,
+    isLoading: isLoadingEmployees,
+  } = useTableData<Employee>(EMPLOYEE_TABLE_NAME);
+  const {
+    data: positions,
+    isError: isErrorPositions,
+    isLoading: isLoadingPositions,
+  } = useTableData<Position>(POSITION_TABLE_NAME);
+  const {
+    data: employeePositions,
+    isError: isErrorEmployeePositions,
+    isLoading: isLoadingEmployeePositions,
+  } = useTableData<EmployeePosition>(EMPLOYEE_POSITION);
 
-  useEffect(() => {
-    if (isError) {
-      toast.error('Ошибка при загрузке данных');
-    }
-  }, [isError]);
+  // Добавим логирование для отслеживания обновлений
+  console.log('Data updated:', { employees, positions, employeePositions });
 
-  const columns = [
-    { key: 'last_name', label: 'Фамилия', sortable: true },
-    { key: 'first_name', label: 'Имя', sortable: true },
-    { key: 'middle_name', label: 'Отчество', sortable: true },
-    { key: 'birth_date', label: 'Дата рождения', sortable: true },
-    { key: 'phone', label: 'Телефон', sortable: true },
-    { key: 'relevance', label: 'Активен', sortable: true },
-  ];
+  const isLoading = isLoadingEmployees || isLoadingPositions || isLoadingEmployeePositions;
 
-  if (isLoading) {
-    return <div>Загрузка...</div>;
+  const isNullData = !employees || !positions || !employeePositions;
+
+  if (isLoading || isNullData) {
+    return (
+      <Flex align="center" justify="center" h="100vh" w="100%">
+        <Loader />
+      </Flex>
+    );
+  }
+
+  if (isErrorEmployees || isErrorPositions || isErrorEmployeePositions) {
+    return <Text>Ошибка при загрузке данных</Text>;
   }
 
   return (
     <Flex direction="column" gap={16} p={16}>
       <Text size="h3">Таблица Сотрудников</Text>
-      {employees && (
-        <TableSort<Employee>
-          data={employees}
-          columns={columns}
-          isSearchable
-          onRowClick={(row) => {
-            console.log('Clicked row:', row);
-          }}
-        />
-      )}
+      <EmployerTable
+        employees={employees}
+        positions={positions}
+        employeePositions={employeePositions}
+      />
     </Flex>
   );
 };

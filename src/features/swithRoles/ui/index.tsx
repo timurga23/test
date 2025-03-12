@@ -1,10 +1,8 @@
 import { Select } from '@mantine/core';
-import { userStore } from '@/enteties/user';
+import { userStore } from '@/enteties';
 
 export function SwitchRoles() {
   const user = userStore((state) => state.user);
-
-  console.log(112, user);
 
   return (
     <Select

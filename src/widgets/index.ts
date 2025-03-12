@@ -1,5 +1,4 @@
 export { AuthGuard } from './authGuard/ui/authGuard';
-export { CustomerSpecTable } from './customerSpecTable/ui/customerSpecTable';
-export { EmployersTable } from './employersTable/ui/employersTable';
+export { EmployerTable } from './employer-table/ui/employer-table';
 export { LoginModal } from './loginModal/ui/loginModal';
 export { NavbarSegmented } from './menu/ui/menu';

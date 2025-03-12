@@ -1,6 +1,6 @@
 import { router } from '@/pages/router';
-import { createContext, FC, PropsWithChildren, useContext, useState, useEffect } from 'react';
-import { routes } from '../../../routes';
+import { createContext, FC, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import { routes } from '../../../model';
 import { getAuthToken, removeAuthToken, saveAuthToken } from '../../auth-token';
 
 interface AuthContextType {

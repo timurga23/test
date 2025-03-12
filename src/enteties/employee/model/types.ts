@@ -1,4 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared/model';
+import { ColumnTypeToValue, IBaseColumn } from '@/shared';
 // import { EMPLOYEE_TABLE_NAME } from './_constant';
 // Типизация конкретной таблицы Employee
 interface EmployeeColumns {

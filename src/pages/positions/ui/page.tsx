@@ -1,10 +1,5 @@
-import { FC } from 'react'
-
-import { PositionsModal } from '@/features'
-
+import { FC } from 'react';
 
 export const PositionsPage: FC = () => {
-  return (
-      <PositionsModal />
-  )
-}
+  return <h1>1</h1>;
+};

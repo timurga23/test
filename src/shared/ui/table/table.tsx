@@ -1,32 +1,30 @@
 import {
+  Box,
   Center,
+  Flex,
   Group,
   ScrollArea,
   Table,
   Text,
   TextInput,
-  UnstyledButton
+  UnstyledButton,
 } from '@mantine/core';
 import { IconChevronDown, IconChevronUp, IconSearch, IconSelector } from '@tabler/icons-react';
 import { useState } from 'react';
 import styles from './index.module.scss';
 
-interface SubColumn {
-  key: string;
+export interface ITableColumn<T = any> {
+  key: keyof T;
   label: string;
   sortable?: boolean;
-}
-
-interface Column {
-  key: string;
-  label: string;
-  sortable?: boolean;
-  subColumns?: SubColumn[];
+  render?: (row: T) => React.ReactNode;
+  width?: string;
+  minWidth?: number;
 }
 
 interface TableSortProps<T extends Record<string, any>> {
   data: T[];
-  columns: Column[];
+  columns: ITableColumn<T>[];
   onRowClick?: (row: T) => void;
   isSearchable?: boolean;
 }
@@ -37,15 +35,21 @@ interface ThProps {
   sorted: boolean;
   onSort: () => void;
   sortable?: boolean;
-  colSpan?: number;
+  width?: string;
+  minWidth?: number;
 }
 
-function Th({ children, reversed, sorted, onSort, sortable = false, colSpan }: ThProps) {
+function Th({ children, reversed, sorted, onSort, sortable = false, width, minWidth }: ThProps) {
   const Icon = sorted ? (reversed ? IconChevronUp : IconChevronDown) : IconSelector;
-  
+
+  const style = {
+    width: width || 'auto',
+    minWidth: minWidth ? `${minWidth}px` : 'auto',
+  };
+
   if (!sortable) {
     return (
-      <Table.Th className={styles.th} colSpan={colSpan}>
+      <Table.Th style={style}>
         <Group justify="space-between">
           <Text fw={500} fz="sm">
             {children}
@@ -56,7 +60,7 @@ function Th({ children, reversed, sorted, onSort, sortable = false, colSpan }: T
   }
 
   return (
-    <Table.Th className={styles.th} colSpan={colSpan}>
+    <Table.Th style={style}>
       <UnstyledButton onClick={onSort} className={styles.control}>
         <Group justify="space-between">
           <Text fw={500} fz="sm">
@@ -74,9 +78,7 @@ function Th({ children, reversed, sorted, onSort, sortable = false, colSpan }: T
 function filterData<T extends Record<string, any>>(data: T[], search: string) {
   const query = search.toLowerCase().trim();
   return data.filter((item) =>
-    Object.values(item).some((value) => 
-      String(value).toLowerCase().includes(query)
-    )
+    Object.values(item).some((value) => String(value).toLowerCase().includes(query))
   );
 }
 
@@ -101,7 +103,12 @@ function sortData<T extends Record<string, any>>(
   );
 }
 
-export function TableSort<T extends Record<string, any>>({ data, columns, onRowClick, isSearchable = false }: TableSortProps<T>) {
+export function TableSort<T extends Record<string, any>>({
+  data,
+  columns,
+  onRowClick,
+  isSearchable = false,
+}: TableSortProps<T>) {
   const [search, setSearch] = useState('');
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<keyof T | null>(null);
@@ -122,79 +129,66 @@ export function TableSort<T extends Record<string, any>>({ data, columns, onRowC
 
   const rows = sortedData.map((row, index) => (
     <Table.Tr key={index} onClick={() => onRowClick?.(row)} style={{ cursor: 'pointer' }}>
-      {columns.map((column) => {
-        if (column.subColumns) {
-          return column.subColumns.map((subColumn) => (
-            <Table.Td key={subColumn.key}>{row[subColumn.key] ? String(row[subColumn.key]) : '-'}</Table.Td>
-          ));
-        }
-        return <Table.Td key={column.key}>{row[column.key] ? String(row[column.key]) : '-'}</Table.Td>;
-      })}
+      {columns.map((column) => (
+        <Table.Td key={column.key as string}>
+          {column.render ? column.render(row) : String(row[column.key] ?? '-')}
+        </Table.Td>
+      ))}
     </Table.Tr>
   ));
 
   return (
-    <ScrollArea>
+    <Flex direction="column" gap="md">
       {isSearchable && (
         <TextInput
-          placeholder="Search by any field"
-          mb="md"
+          placeholder="Поиск"
           leftSection={<IconSearch size={16} stroke={1.5} />}
           value={search}
           onChange={handleSearchChange}
+          w={300}
         />
       )}
-      <Table horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="fixed">
-        <Table.Thead>
-          <Table.Tr>
-            {columns.map((column) => (
-              <Th
-                key={column.key}
-                sorted={sortBy === column.key}
-                reversed={reverseSortDirection}
-                onSort={() => setSorting(column.key as keyof T)}
-                sortable={column.sortable}
-                colSpan={column.subColumns?.length || 1}
-              >
-                {column.label}
-              </Th>
-            ))}
-          </Table.Tr>
-          {columns.some(col => col.subColumns) && (
-            <Table.Tr>
-              {columns.map((column) => {
-                if (column.subColumns) {
-                  return column.subColumns.map((subColumn) => (
-                    <Th
-                      key={subColumn.key}
-                      sorted={sortBy === subColumn.key}
-                      reversed={reverseSortDirection}
-                      onSort={() => setSorting(subColumn.key as keyof T)}
-                      sortable={subColumn.sortable}
-                    >
-                      {subColumn.label}
-                    </Th>
-                  ));
-                }
-                return null;
-              })}
-            </Table.Tr>
-          )}
-        </Table.Thead>
-        <Table.Tbody>
-          {rows.length > 0 ? (
-            rows
-          ) : (
-            <Table.Tr>
-              <Table.Td colSpan={columns.reduce((acc, col) => acc + (col.subColumns?.length || 1), 0)}>
-                <Text fw={500} ta="center">
-                  Nothing found
-                </Text>
-              </Table.Td>
-            </Table.Tr>
-          )}
-        </Table.Tbody>
-      </Table>
-    </ScrollArea>
+      <ScrollArea>
+        <Box style={{ width: 'fit-content' }}>
+          <Table
+            horizontalSpacing="md"
+            verticalSpacing="xs"
+            layout="fixed"
+            style={{ width: 'auto' }}
+          >
+            <Table.Thead>
+              <Table.Tr>
+                {columns.map((column) => (
+                  <Th
+                    key={String(column.key)}
+                    sorted={sortBy === column.key}
+                    reversed={reverseSortDirection}
+                    onSort={() => setSorting(column.key as keyof T)}
+                    sortable={column.sortable}
+                    width={column.width}
+                    minWidth={column.minWidth}
+                  >
+                    {column.label}
+                  </Th>
+                ))}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {rows.length > 0 ? (
+                rows
+              ) : (
+                <Table.Tr>
+                  <Table.Td colSpan={columns.length}>
+                    <Text fw={500} ta="center">
+                      Ничего не найдено
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              )}
+            </Table.Tbody>
+          </Table>
+        </Box>
+      </ScrollArea>
+    </Flex>
   );
 }

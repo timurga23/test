@@ -1,4 +1,4 @@
-import { apiRequest } from '@/shared/lib/api-request';
+import { apiRequest } from '@/shared';
 import { AuthResponse } from '../model/types';
 
 /**
