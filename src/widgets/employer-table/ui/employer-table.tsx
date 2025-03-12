@@ -21,7 +21,6 @@ export const EmployerTable = ({ employees, positions, employeePositions }: TProp
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const normalizedData = useMemo(() => {
-    console.log('Normalizing data with:', { employees, positions, employeePositions });
     return mapEmployeeToTable(employees, positions, employeePositions);
   }, [employees, positions, employeePositions]);
 

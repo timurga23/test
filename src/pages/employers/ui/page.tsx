@@ -28,9 +28,6 @@ export const EmployersPage: FC = () => {
     isLoading: isLoadingEmployeePositions,
   } = useTableData<EmployeePosition>(EMPLOYEE_POSITION);
 
-  // Добавим логирование для отслеживания обновлений
-  console.log('Data updated:', { employees, positions, employeePositions });
-
   const isLoading = isLoadingEmployees || isLoadingPositions || isLoadingEmployeePositions;
 
   const isNullData = !employees || !positions || !employeePositions;

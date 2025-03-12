@@ -1,16 +1,8 @@
 import { SwitchRoles } from '@/features/swithRoles/ui';
-import { IconBellRinging, IconDatabaseImport, IconReceipt2 } from '@tabler/icons-react';
 import { useState } from 'react';
 import styles from './index.module.scss';
+import { tabs } from '../../model/_routes';
 
-// todo завести таблицы по роли
-const tabs = {
-  account: [
-    { link: '/positions', label: 'Должности', icon: IconBellRinging },
-    { link: '/employers', label: 'Сотрудники', icon: IconReceipt2 },
-  ],
-  general: [{ link: '/partners', label: 'Партнеры', icon: IconDatabaseImport }],
-};
 
 export function NavbarSegmented() {
   const [section, _] = useState<'account' | 'general'>('account');
