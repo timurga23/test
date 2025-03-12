@@ -41,3 +41,13 @@ export const useDeleteTableRow = <
       tableApi.deleteTableRow<T>(tableName, data),
   });
 };
+
+export const useFilteredTableData = <T>(
+) => {
+  return useMutation<T[], Error, { tableName: string; filter: IColumn[] }>({
+    mutationFn: ({ tableName, filter }) => {
+      return tableApi.getFilteredTableData<T>(tableName, filter);
+    },
+  });
+};
+

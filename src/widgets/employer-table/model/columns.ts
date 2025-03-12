@@ -1,5 +1,5 @@
+import { NormalizedEmployee } from '@/enteties';
 import { ITableColumn } from '@/shared';
-import { NormalizedEmployee } from '../lib/mapEmployeeData';
 
 export const EMPLOYEE_COLUMNS: ITableColumn<NormalizedEmployee>[] = [
   {

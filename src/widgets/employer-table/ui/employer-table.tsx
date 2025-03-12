@@ -7,8 +7,11 @@ import {
   Position,
 } from '@/enteties';
 import { EditEmployeeModal } from '@/features';
-import { TableSort } from '@/shared';
+import { TableSort } from '@/shared/ui';
+import { ActionIcon, Box, Flex } from '@mantine/core';
+import { IconFilter } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
+import { FilterPanel } from './filter-panel';
 
 type TProps = {
   employees: Employee[];
@@ -16,31 +19,93 @@ type TProps = {
   employeePositions: EmployeePosition[];
 };
 
+interface Filters {
+  positions: string[];
+  relevance: boolean | null;
+}
+
 export const EmployerTable = ({ employees, positions, employeePositions }: TProps) => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<Filters>({
+    positions: [],
+    relevance: null,
+  });
 
-  const normalizedData = useMemo(() => {
-    return mapEmployeeToTable(employees, positions, employeePositions);
-  }, [employees, positions, employeePositions]);
-
-  const handleRowClick = (row: NormalizedEmployee) => {
-    const employee = employees.find((emp) => emp.id_employee === row.id_employee);
-    if (employee) {
-      setSelectedEmployee(employee);
-      setIsModalOpen(true);
-    }
+  const handleFilterChange = (newFilters: Filters) => {
+    setFilters(newFilters);
   };
 
+  const filteredData = useMemo(() => {
+    let result = [...employees];
+
+    // Фильтрация по должностям
+    if (filters.positions.length > 0) {
+      result = result.filter((employee) => {
+        const employeePositionIds = employeePositions
+          .filter((ep) => ep.id_employee === employee.id_employee)
+          .map((ep) => ep.id_position);
+
+        return filters.positions.some((posId) => employeePositionIds.includes(posId));
+      });
+    }
+
+    // Фильтрация по активности
+    if (filters.relevance !== null) {
+      result = result.filter((employee) => employee.relevance === filters.relevance);
+    }
+
+    return result;
+  }, [employees, employeePositions, filters]);
+
+  console.log(112, filteredData);
+
+  const normalizedData = useMemo(() => {
+    return mapEmployeeToTable(filteredData, positions, employeePositions);
+  }, [filteredData, positions, employeePositions]);
+
   return (
-    <>
-      <TableSort<NormalizedEmployee>
-        key={JSON.stringify(normalizedData)}
-        data={normalizedData}
-        columns={EMPLOYEE_COLUMNS}
-        isSearchable
-        onRowClick={handleRowClick}
-      />
+    <Flex>
+      {isFilterOpen && (
+        <Box
+          style={{
+            borderRight: '1px solid var(--mantine-color-gray-3)',
+            minWidth: '250px',
+          }}
+        >
+          <FilterPanel
+            positions={positions}
+            currentFilters={filters}
+            onFilterChange={handleFilterChange}
+          />
+        </Box>
+      )}
+
+      <Box style={{ flex: 1 }}>
+        <Flex justify="flex-end" mb="md">
+          <ActionIcon
+            variant="subtle"
+            color={isFilterOpen ? 'blue' : 'gray'}
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            title="Фильтры"
+          >
+            <IconFilter size={20} />
+          </ActionIcon>
+        </Flex>
+
+        <TableSort<NormalizedEmployee>
+          key={JSON.stringify(normalizedData)}
+          data={normalizedData}
+          columns={EMPLOYEE_COLUMNS}
+          isSearchable
+          onRowClick={(row) => {
+            setSelectedEmployee(row);
+            setIsModalOpen(true);
+          }}
+        />
+      </Box>
+
       <EditEmployeeModal
         employee={selectedEmployee}
         isOpen={isModalOpen}
@@ -49,6 +114,6 @@ export const EmployerTable = ({ employees, positions, employeePositions }: TProp
         positions={positions}
         employeePositions={employeePositions}
       />
-    </>
+    </Flex>
   );
 };

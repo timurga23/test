@@ -51,4 +51,12 @@ export const tableApi = {
       body: data,
     });
   },
+
+  getFilteredTableData: async <T>(tableName: string, filter: IColumn[]): Promise<T[]> => {
+    return await apiRequest<T[]>({
+      endpoint: `/user/tables/${tableName}/filter`,
+      method: 'POST',
+      body: filter,
+    });
+  },
 };
