@@ -1,4 +1,4 @@
-import { Position, POSITION_TABLE_NAME, useUpdateTableData } from '@/enteties';
+import { Position, POSITION_TABLE_NAME, useUpdateTableData } from '@/entities';
 import { UniversalForm } from '@/shared/ui';
 import { Modal } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,11 +11,7 @@ interface EditPositionModalProps {
   onClose: () => void;
 }
 
-export const EditPositionModal = ({
-  position,
-  isOpen,
-  onClose,
-}: EditPositionModalProps) => {
+export const EditPositionModal = ({ position, isOpen, onClose }: EditPositionModalProps) => {
   const { mutateAsync: updateMutation, isPending: isUpdating } = useUpdateTableData();
   const queryClient = useQueryClient();
 
@@ -27,10 +23,12 @@ export const EditPositionModal = ({
     try {
       await updateMutation({
         tableName: POSITION_TABLE_NAME,
-        data: [{
-          filter: [{ column: 'id_position', value: position.id_position }],
-          row: [{ column: 'name', value: values.name }]
-        }]
+        data: [
+          {
+            filter: [{ column: 'id_position', value: position.id_position }],
+            row: [{ column: 'name', value: values.name }],
+          },
+        ],
       });
 
       await queryClient.invalidateQueries({ queryKey: ['table', POSITION_TABLE_NAME] });
@@ -52,4 +50,4 @@ export const EditPositionModal = ({
       />
     </Modal>
   );
-}; 
+};

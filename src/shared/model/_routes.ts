@@ -3,4 +3,5 @@ export const routes = {
   POSITIONS: '/positions',
   EMPLOYERS: '/employers',
   LOGIN: '/login',
+  CARDS: '/cards',
 };

@@ -1,4 +1,4 @@
-import { useLoginMutation, userStore } from '@/enteties';
+import { useLoginMutation, userStore } from '@/entities';
 import { useAuth } from '@/shared';
 import { Button, PasswordInput, Stack, TextInput, Title } from '@mantine/core';
 import { useEffect, useState } from 'react';

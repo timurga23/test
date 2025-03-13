@@ -1,4 +1,4 @@
-import { Employee, Position } from '@/enteties';
+import { Employee, Position } from '@/entities';
 
 export const getEmployeeColumns = (
   employees: Employee[],

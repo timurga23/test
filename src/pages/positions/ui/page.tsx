@@ -1,4 +1,4 @@
-import { POSITION_TABLE_NAME, Position, useTableData } from '@/enteties';
+import { POSITION_TABLE_NAME, Position, useTableData } from '@/entities';
 import { PositionTable } from '@/widgets';
 import { Flex, Loader, Text } from '@mantine/core';
 import { FC } from 'react';

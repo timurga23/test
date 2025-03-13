@@ -1,4 +1,4 @@
-import { NormalizedEmployee } from '@/enteties';
+import { NormalizedEmployee } from '@/entities';
 import { ITableColumn } from '@/shared';
 
 export const EMPLOYEE_COLUMNS: ITableColumn<NormalizedEmployee>[] = [

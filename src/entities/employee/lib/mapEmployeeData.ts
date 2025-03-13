@@ -1,4 +1,4 @@
-import { EmployeePosition, Position } from '@/enteties';
+import { EmployeePosition, Position } from '@/entities';
 import { Employee } from '../model/types';
 
 export interface NormalizedEmployee extends Employee {

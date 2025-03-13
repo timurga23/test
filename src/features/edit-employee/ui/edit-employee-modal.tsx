@@ -7,7 +7,7 @@ import {
   useAddTableData,
   useDeleteTableRow,
   useUpdateTableData,
-} from '@/enteties';
+} from '@/entities';
 import { formatDateForServer, UniversalForm } from '@/shared';
 import { Modal } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';

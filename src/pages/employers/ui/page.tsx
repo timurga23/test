@@ -6,7 +6,7 @@ import {
   POSITION_TABLE_NAME,
   Position,
   useTableData,
-} from '@/enteties';
+} from '@/entities';
 import { EmployerTable } from '@/widgets';
 import { Flex, Loader, Text } from '@mantine/core';
 import { FC } from 'react';

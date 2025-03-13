@@ -1,4 +1,4 @@
-import { Position } from '@/enteties';
+import { Position } from '@/entities';
 import { EditPositionModal } from '@/features';
 import { TableSort } from '@/shared/ui';
 import { useState } from 'react';
@@ -33,4 +33,4 @@ export const PositionTable = ({ positions }: TProps) => {
       />
     </>
   );
-}; 
+};

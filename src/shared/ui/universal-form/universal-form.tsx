@@ -1,5 +1,13 @@
 import { ColumnTypeToValue } from '@/shared';
-import { Button, PasswordInput, Select, Stack, Switch, TextInput } from '@mantine/core';
+import {
+  Button,
+  NumberInput,
+  PasswordInput,
+  Select,
+  Stack,
+  Switch,
+  TextInput,
+} from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 
@@ -10,9 +18,10 @@ export type BaseColumn<T extends keyof ColumnTypeToValue> = {
   nullable?: boolean;
   defaultValue?: ColumnTypeToValue[T];
   label?: string;
-  fieldType?: 'text' | 'password' | 'select';
+  fieldType?: 'text' | 'password' | 'select' | 'date' | 'switch' | 'number';
   options?: { value: string; label: string }[];
   group?: string;
+  placeholder?: string;
 };
 
 type InferColumnType<T extends BaseColumn<keyof ColumnTypeToValue>> =
@@ -37,22 +46,18 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
   onSubmit,
   isLoading = false,
 }: UniversalFormProps<T>) {
+  // Добавим отладочный вывод
+  console.log('Form defaultValues:', defaultValues);
+  console.log('Form columns:', columns);
+
   const {
     control,
     handleSubmit,
     formState: { isDirty },
   } = useForm<FormValues<T>>({
     // @ts-ignore
-    defaultValues: {
-      ...Object.fromEntries(
-        Object.entries(defaultValues || {}).map(([key, value]) => {
-          return [key, value === null || value === undefined ? '' : value];
-        })
-      ),
-    },
+    defaultValues,
   });
-
-  console.log(112, defaultValues, columns);
 
   const onSubmitHandler = handleSubmit((data) => {
     onSubmit(data);
@@ -71,6 +76,9 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
               name={key as keyof FormValues<T>}
               control={control}
               render={({ field }) => {
+                // Добавим отладочный вывод для каждого поля
+                console.log(`Field ${key}:`, field.value);
+
                 switch (column.type) {
                   case 'TEXT':
                     if (column.fieldType === 'select' && column.options) {
@@ -81,6 +89,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                           value={String(field.value || '')}
                           onChange={(newValue) => field.onChange(newValue || '')}
                           clearable
+                          placeholder={column.placeholder}
                         />
                       );
                     }
@@ -89,12 +98,14 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         label={column.label || key}
                         value={String(field.value || '')}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
+                        placeholder={column.placeholder}
                       />
                     ) : (
                       <TextInput
                         label={column.label || key}
                         value={String(field.value || '')}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
+                        placeholder={column.placeholder}
                       />
                     );
                   case 'DATE':
@@ -108,6 +119,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         }}
                         valueFormat="YYYY-MM-DD"
                         clearable
+                        placeholder={column.placeholder}
                       />
                     );
                   case 'BOOLEAN':
@@ -118,12 +130,23 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         onChange={(event) => field.onChange(event.currentTarget.checked)}
                       />
                     );
+                  case 'INTEGER':
+                    return (
+                      <NumberInput
+                        {...field}
+                        label={column.label}
+                        value={Number(field.value || 0)}
+                        onChange={(value) => field.onChange(value)}
+                        placeholder={column.placeholder}
+                      />
+                    );
                   default:
                     return (
                       <TextInput
                         label={column.label || key}
                         value={String(field.value || '')}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
+                        placeholder={column.placeholder}
                       />
                     );
                 }
@@ -145,6 +168,9 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                     name={key as keyof FormValues<T>}
                     control={control}
                     render={({ field }) => {
+                      // Добавим отладочный вывод для каждого поля
+                      console.log(`Field ${key}:`, field.value);
+
                       switch (column.type) {
                         case 'TEXT':
                           if (column.fieldType === 'select' && column.options) {
@@ -155,6 +181,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                                 value={String(field.value || '')}
                                 onChange={(newValue) => field.onChange(newValue || '')}
                                 clearable
+                                placeholder={column.placeholder}
                               />
                             );
                           }
@@ -163,12 +190,14 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                               label={column.label || key}
                               value={String(field.value || '')}
                               onChange={(e) => field.onChange(e.currentTarget.value)}
+                              placeholder={column.placeholder}
                             />
                           ) : (
                             <TextInput
                               label={column.label || key}
                               value={String(field.value || '')}
                               onChange={(e) => field.onChange(e.currentTarget.value)}
+                              placeholder={column.placeholder}
                             />
                           );
                         case 'DATE':
@@ -182,6 +211,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                               }}
                               valueFormat="YYYY-MM-DD"
                               clearable
+                              placeholder={column.placeholder}
                             />
                           );
                         case 'BOOLEAN':
@@ -192,12 +222,23 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                               onChange={(event) => field.onChange(event.currentTarget.checked)}
                             />
                           );
+                        case 'INTEGER':
+                          return (
+                            <NumberInput
+                              {...field}
+                              label={column.label}
+                              value={Number(field.value || 0)}
+                              onChange={(value) => field.onChange(value)}
+                              placeholder={column.placeholder}
+                            />
+                          );
                         default:
                           return (
                             <TextInput
                               label={column.label || key}
                               value={String(field.value || '')}
                               onChange={(e) => field.onChange(e.currentTarget.value)}
+                              placeholder={column.placeholder}
                             />
                           );
                       }

@@ -1,4 +1,4 @@
-import { Position } from '@/enteties';
+import { Position } from '@/entities';
 import { Box, Checkbox, Radio, Stack, Text, Title } from '@mantine/core';
 
 interface Filters {

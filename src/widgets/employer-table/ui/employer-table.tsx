@@ -5,7 +5,7 @@ import {
   mapEmployeeToTable,
   NormalizedEmployee,
   Position,
-} from '@/enteties';
+} from '@/entities';
 import { EditEmployeeModal } from '@/features';
 import { TableSort } from '@/shared/ui';
 import { ActionIcon, Box, Button, Flex } from '@mantine/core';

@@ -1,5 +1,5 @@
-import { EMPLOYEE_POSITION, EmployeePosition } from '@/enteties';
-import { TableRowAdd, TableUpdates } from '@/enteties/user-table/model/types';
+import { EMPLOYEE_POSITION, EmployeePosition } from '@/entities';
+import { TableRowAdd, TableUpdates } from '@/entities/user-table/model/types';
 import { IColumn } from '@/shared';
 
 interface TableOperation {

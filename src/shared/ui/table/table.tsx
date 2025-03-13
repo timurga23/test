@@ -10,7 +10,7 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { IconChevronDown, IconChevronUp, IconSearch, IconSelector } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './index.module.scss';
 
 export interface ITableColumn<T = any> {
@@ -67,7 +67,7 @@ function Th({ children, reversed, sorted, onSort, sortable = false, width, minWi
             {children}
           </Text>
           <Center className={styles.icon}>
-            <Icon size={16} stroke={1.5} />
+            <Icon size="0.9rem" stroke={1.5} />
           </Center>
         </Group>
       </UnstyledButton>
@@ -75,14 +75,19 @@ function Th({ children, reversed, sorted, onSort, sortable = false, width, minWi
   );
 }
 
-function filterData<T extends Record<string, any>>(data: T[], search: string) {
+function filterData<T>(data: T[], search: string) {
   const query = search.toLowerCase().trim();
-  return data.filter((item) =>
-    Object.values(item).some((value) => String(value).toLowerCase().includes(query))
-  );
+  return data.filter((item) => {
+    const objectKeys = Object.keys(item as Record<string, any>);
+
+    return objectKeys.some((key) => {
+      const value = (item as Record<string, any>)[key];
+      return value?.toString().toLowerCase().includes(query);
+    });
+  });
 }
 
-function sortData<T extends Record<string, any>>(
+function sortData<T>(
   data: T[],
   payload: { sortBy: keyof T | null; reversed: boolean; search: string }
 ) {
@@ -94,10 +99,18 @@ function sortData<T extends Record<string, any>>(
 
   return filterData(
     [...data].sort((a, b) => {
+      // @ts-ignore
+      const aValue = (a as Record<string, any>)[sortBy];
+      // @ts-ignore
+      const bValue = (b as Record<string, any>)[sortBy];
+
+      if (!aValue || !bValue) return 0;
+
       if (payload.reversed) {
-        return String(b[sortBy]).localeCompare(String(a[sortBy]));
+        return bValue.toString().localeCompare(aValue.toString());
       }
-      return String(a[sortBy]).localeCompare(String(b[sortBy]));
+
+      return aValue.toString().localeCompare(bValue.toString());
     }),
     payload.search
   );
@@ -113,6 +126,10 @@ export function TableSort<T extends Record<string, any>>({
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<keyof T | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
+
+  useEffect(() => {
+    setSortedData(data);
+  }, [data]);
 
   const setSorting = (field: keyof T) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
