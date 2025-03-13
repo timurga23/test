@@ -8,12 +8,13 @@ import {
   useDeleteTableRow,
   useUpdateTableData,
 } from '@/enteties';
-import { UniversalForm } from '@/shared';
+import { formatDateForServer, UniversalForm } from '@/shared';
 import { Modal } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { getEmployeeColumns } from '../lib/get-employee-columns';
 import { normalizeFormData } from '../lib/normalize-form-data';
+import { emptyEmployee } from '../model/_constant';
 
 interface EditEmployeeModalProps {
   employee: Employee | null;
@@ -32,75 +33,111 @@ export const EditEmployeeModal = ({
   isOpen,
   onClose,
 }: EditEmployeeModalProps) => {
-  if (!employee) return null;
-
   const { mutateAsync: updateMutation, isPending: isUpdating } = useUpdateTableData();
   const { mutateAsync: addMutation, isPending: isAdding } = useAddTableData();
   const { mutateAsync: deleteMutation, isPending: isDeleting } = useDeleteTableRow();
 
   const queryClient = useQueryClient();
 
-  const columns = getEmployeeColumns(employees, positions, employee);
+  const isNewEmployee = !employee;
 
-  // Подготавливаем начальные значения, включая позиции
-  const defaultValues = {
-    ...employee,
-    ...positions.reduce(
-      (acc, position) => ({
-        ...acc,
-        [`position_${position.id_position}`]: employeePositions.some(
-          (ep) => ep.id_position === position.id_position && ep.id_employee === employee.id_employee
+  const columns = getEmployeeColumns(employees, positions, employee || ({} as Employee));
+
+  const defaultValues = isNewEmployee
+    ? emptyEmployee
+    : {
+        ...employee,
+        ...positions.reduce(
+          (acc, position) => ({
+            ...acc,
+            [`position_${position.id_position}`]: employeePositions.some(
+              (ep) =>
+                ep.id_position === position.id_position && ep.id_employee === employee.id_employee
+            ),
+          }),
+          {}
         ),
-      }),
-      {}
-    ),
-  };
+      };
 
   const handleSubmit = async (values: Record<string, any>) => {
     try {
-      const operations = normalizeFormData(
-        values,
-        employee,
-        employeePositions.filter((ep) => ep.id_employee === employee.id_employee)
-      );
+      if (isNewEmployee) {
+        // Для нового сотрудника добавляем полный формат даты с временем
+        const formattedValues = {
+          ...values,
+          birth_date: formatDateForServer(values.birth_date),
+        };
 
-      // Последовательно выполняем все операции
-      for (const operation of operations) {
-        if (operation.update) {
-          await updateMutation({
-            tableName: operation.update.tableName,
-            data: operation.update.data,
-          });
+        await addMutation({
+          tableName: EMPLOYEE_TABLE_NAME,
+          data: [
+            {
+              // @ts-ignore
+              row: Object.entries(formattedValues)
+                .filter(([key]) => !key.startsWith('position_'))
+                .map(([column, value]) => ({
+                  column,
+                  value,
+                })),
+            },
+          ],
+        });
+
+        // Добавляем позиции если они выбраны
+        const selectedPositions = Object.entries(values)
+          .filter(([key, value]) => key.startsWith('position_') && value === true)
+          .map(([key]) => key.replace('position_', ''));
+
+        if (selectedPositions.length > 0) {
+          // Здесь нужно получить id созданного сотрудника и добавить позиции
+          // Возможно потребуется дополнительный запрос или модификация API
         }
+      } else {
+        // Существующая логика обновления
+        const operations = normalizeFormData(values, employee, employeePositions);
+        // Последовательно выполняем все операции
+        for (const operation of operations) {
+          if (operation.update) {
+            await updateMutation({
+              tableName: operation.update.tableName,
+              data: operation.update.data,
+            });
+          }
 
-        if (operation.add) {
-          await addMutation({
-            tableName: operation.add.tableName,
-            data: operation.add.data,
-          });
-        }
+          if (operation.add) {
+            await addMutation({
+              tableName: operation.add.tableName,
+              data: operation.add.data,
+            });
+          }
 
-        if (operation.delete) {
-          await deleteMutation({
-            tableName: operation.delete.tableName,
-            data: operation.delete.data,
-          });
+          if (operation.delete) {
+            await deleteMutation({
+              tableName: operation.delete.tableName,
+              data: operation.delete.data,
+            });
+          }
         }
       }
 
       onClose();
     } catch (error) {
-      console.error('Error updating data:', error);
-      toast.error(`Ошибка при обновлении данных в таблице попробуйте позже`);
+      console.error('Error saving employee:', error);
+      toast.error('Ошибка при сохранении данных');
     }
-      queryClient.invalidateQueries({ queryKey: ['table', EMPLOYEE_POSITION] });
-      queryClient.invalidateQueries({ queryKey: ['table', EMPLOYEE_TABLE_NAME] });
+
+    await queryClient.invalidateQueries({ queryKey: ['table', EMPLOYEE_TABLE_NAME] });
+    await queryClient.invalidateQueries({ queryKey: ['table', EMPLOYEE_POSITION] });
   };
 
   const isLoading = isUpdating || isAdding || isDeleting;
 
   return (
-    <Modal opened={isOpen} onClose={onClose} title="Редактирование сотрудника">
+    <Modal
+      opened={isOpen}
+      onClose={onClose}
+      title={isNewEmployee ? 'Добавление сотрудника' : 'Редактирование сотрудника'}
+    >
       <UniversalForm
         // @ts-ignore
         columns={columns}

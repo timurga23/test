@@ -4,7 +4,7 @@ import { Employee } from '../model/types';
 export interface NormalizedEmployee extends Employee {
   fullName: string;
   position: string;
-  birth_date: string;
+  birth_date: string | null;
 }
 
 export const mapEmployeeData = (employee: Employee): string => {
@@ -39,8 +39,5 @@ export const mapEmployeeToTable = (
     ...employee,
     fullName: mapEmployeeData(employee),
     position: mapEmployeePosition(positions, employee.id_employee, employeePositions),
-    birth_date: employee.birth_date
-      ? new Date(employee.birth_date).toLocaleDateString('ru-RU')
-      : '',
   }));
 };

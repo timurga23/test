@@ -8,8 +8,8 @@ import {
 } from '@/enteties';
 import { EditEmployeeModal } from '@/features';
 import { TableSort } from '@/shared/ui';
-import { ActionIcon, Box, Flex } from '@mantine/core';
-import { IconFilter } from '@tabler/icons-react';
+import { ActionIcon, Box, Button, Flex } from '@mantine/core';
+import { IconFilter, IconPlus } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { FilterPanel } from './filter-panel';
 
@@ -66,7 +66,7 @@ export const EmployerTable = ({ employees, positions, employeePositions }: TProp
   }, [filteredData, positions, employeePositions]);
 
   return (
-    <Flex>
+    <Flex gap={16}>
       {isFilterOpen && (
         <Box
           style={{
@@ -83,7 +83,17 @@ export const EmployerTable = ({ employees, positions, employeePositions }: TProp
       )}
 
       <Box style={{ flex: 1 }}>
-        <Flex justify="flex-end" mb="md">
+        <Flex justify="space-between" align="center" mb="md">
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={() => {
+              setSelectedEmployee(null);
+              setIsModalOpen(true);
+            }}
+          >
+            Добавить сотрудника
+          </Button>
+
           <ActionIcon
             variant="subtle"
             color={isFilterOpen ? 'blue' : 'gray'}
@@ -108,11 +118,14 @@ export const EmployerTable = ({ employees, positions, employeePositions }: TProp
 
       <EditEmployeeModal
         employee={selectedEmployee}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
         employees={employees}
         positions={positions}
         employeePositions={employeePositions}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedEmployee(null);
+        }}
       />
     </Flex>
   );

@@ -26,14 +26,14 @@ export type FormValues<T extends Record<string, BaseColumn<keyof ColumnTypeToVal
 // Универсальная форма
 interface UniversalFormProps<T extends Record<string, BaseColumn<keyof ColumnTypeToValue>>> {
   columns: T;
-  defaultValues?: Partial<FormValues<T>>;
+  defaultValues?: Partial<Record<keyof T, any>>;
   onSubmit: (data: FormValues<T>) => void;
   isLoading?: boolean;
 }
 
 export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTypeToValue>>>({
   columns,
-  defaultValues = {},
+  defaultValues,
   onSubmit,
   isLoading = false,
 }: UniversalFormProps<T>) {
@@ -43,11 +43,19 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
     formState: { isDirty },
   } = useForm<FormValues<T>>({
     // @ts-ignore
-    defaultValues: defaultValues as FormValues<T>,
+    defaultValues: {
+      ...Object.fromEntries(
+        Object.entries(defaultValues || {}).map(([key, value]) => {
+          return [key, value === null || value === undefined ? '' : value];
+        })
+      ),
+    },
   });
 
+  console.log(112, defaultValues, columns);
+
   const onSubmitHandler = handleSubmit((data) => {
-    onSubmit(data as FormValues<T>);
+    onSubmit(data);
   });
 
   return (
@@ -62,64 +70,60 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
               // @ts-ignore
               name={key as keyof FormValues<T>}
               control={control}
-              // @ts-ignore
-              defaultValue={column.defaultValue ?? null}
-              render={({ field: { value, onChange, ...field } }) => {
+              render={({ field }) => {
                 switch (column.type) {
                   case 'TEXT':
-                    if (column.fieldType === 'select') {
+                    if (column.fieldType === 'select' && column.options) {
                       return (
                         <Select
                           label={column.label || key}
-                          data={column.options || []}
-                          value={String(value || '')}
-                          onChange={(newValue) => {
-                            onChange(newValue || null);
-                          }}
+                          data={column.options}
+                          value={String(field.value || '')}
+                          onChange={(newValue) => field.onChange(newValue || '')}
                           clearable
-                          {...field}
                         />
                       );
                     }
                     return column.fieldType === 'password' ? (
                       <PasswordInput
                         label={column.label || key}
-                        value={String(value) ?? ''}
-                        onChange={onChange}
-                        {...field}
+                        value={String(field.value || '')}
+                        onChange={(e) => field.onChange(e.currentTarget.value)}
                       />
                     ) : (
                       <TextInput
                         label={column.label || key}
-                        value={String(value) ?? ''}
-                        onChange={onChange}
-                        {...field}
+                        value={String(field.value || '')}
+                        onChange={(e) => field.onChange(e.currentTarget.value)}
                       />
                     );
                   case 'DATE':
                     return (
                       <DateInput
-                        label={column.label || key}
-                        value={value ? new Date(String(value)) : null}
-                        onChange={(date) => onChange(date?.toISOString())}
                         {...field}
+                        label={column.label}
+                        value={field?.value ? new Date(field?.value as string) : null}
+                        onChange={(date) => {
+                          field.onChange(date);
+                        }}
+                        valueFormat="YYYY-MM-DD"
+                        clearable
                       />
                     );
                   case 'BOOLEAN':
                     return (
                       <Switch
                         label={column.label || key}
-                        checked={Boolean(value)}
-                        onChange={(event) => onChange(event.currentTarget.checked)}
+                        checked={Boolean(!!field.value)}
+                        onChange={(event) => field.onChange(event.currentTarget.checked)}
                       />
                     );
                   default:
                     return (
                       <TextInput
                         label={column.label || key}
-                        value={String(value) ?? ''}
-                        onChange={onChange}
-                        {...field}
+                        value={String(field.value || '')}
+                        onChange={(e) => field.onChange(e.currentTarget.value)}
                       />
                     );
                 }
@@ -140,64 +144,60 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                     // @ts-ignore
                     name={key as keyof FormValues<T>}
                     control={control}
-                    // @ts-ignore
-                    defaultValue={column.defaultValue ?? null}
-                    render={({ field: { value, onChange, ...field } }) => {
+                    render={({ field }) => {
                       switch (column.type) {
                         case 'TEXT':
-                          if (column.fieldType === 'select') {
+                          if (column.fieldType === 'select' && column.options) {
                             return (
                               <Select
                                 label={column.label || key}
-                                data={column.options || []}
-                                value={String(value || '')}
-                                onChange={(newValue) => {
-                                  onChange(newValue || null);
-                                }}
+                                data={column.options}
+                                value={String(field.value || '')}
+                                onChange={(newValue) => field.onChange(newValue || '')}
                                 clearable
-                                {...field}
                               />
                             );
                           }
                           return column.fieldType === 'password' ? (
                             <PasswordInput
                               label={column.label || key}
-                              value={String(value) ?? ''}
-                              onChange={onChange}
-                              {...field}
+                              value={String(field.value || '')}
+                              onChange={(e) => field.onChange(e.currentTarget.value)}
                             />
                           ) : (
                             <TextInput
                               label={column.label || key}
-                              value={String(value) ?? ''}
-                              onChange={onChange}
-                              {...field}
+                              value={String(field.value || '')}
+                              onChange={(e) => field.onChange(e.currentTarget.value)}
                             />
                           );
                         case 'DATE':
                           return (
                             <DateInput
-                              label={column.label || key}
-                              value={value ? new Date(String(value)) : null}
-                              onChange={(date) => onChange(date?.toISOString())}
                               {...field}
+                              label={column.label}
+                              value={field?.value ? new Date(field?.value as string) : null}
+                              onChange={(date) => {
+                                field.onChange(date);
+                              }}
+                              valueFormat="YYYY-MM-DD"
+                              clearable
                             />
                           );
                         case 'BOOLEAN':
                           return (
                             <Switch
                               label={column.label || key}
-                              checked={Boolean(value)}
-                              onChange={(event) => onChange(event.currentTarget.checked)}
+                              checked={Boolean(field.value)}
+                              onChange={(event) => field.onChange(event.currentTarget.checked)}
                             />
                           );
                         default:
                           return (
                             <TextInput
                               label={column.label || key}
-                              value={String(value) ?? ''}
-                              onChange={onChange}
-                              {...field}
+                              value={String(field.value || '')}
+                              onChange={(e) => field.onChange(e.currentTarget.value)}
                             />
                           );
                       }
