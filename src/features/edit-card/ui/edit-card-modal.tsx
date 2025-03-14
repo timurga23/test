@@ -99,10 +99,6 @@ export const EditCardModal = ({ opened, onClose, card, refetch }: EditCardModalP
     }
   };
 
-  // Добавим отладочный вывод
-  console.log('Card data:', card);
-  console.log('Initial values:', initialValues);
-
   return (
     <Modal
       opened={opened}
