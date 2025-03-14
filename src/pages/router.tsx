@@ -8,6 +8,7 @@ import { PositionsPage } from './positions/ui/page';
 import { WelcomePage } from './welcome';
 import { CardsPage } from './cards/ui/page';
 import { BalancePage } from './balance/ui/page';
+import { RatePage } from './rate/ui/page';
 
 export const router = createBrowserRouter([
   {
@@ -33,5 +34,9 @@ export const router = createBrowserRouter([
   {
     path: routes.BALANCE,
     element: <BalancePage />,
+  },
+  {
+    path: routes.RATE,
+    element: <RatePage />,
   },
 ]);

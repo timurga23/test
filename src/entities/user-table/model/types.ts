@@ -1,4 +1,4 @@
-import { IColumn, TableRow } from '@/shared';
+import { IColumn } from '@/shared';
 
 type TableUpdate = {
   filter: IColumn[];
@@ -7,4 +7,4 @@ type TableUpdate = {
 
 export type TableUpdates = TableUpdate[];
 
-export type TableRowAdd = TableRow[];
+export type TableRowAdd = { row: IColumn[] }[];

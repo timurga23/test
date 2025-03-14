@@ -1,38 +1,51 @@
-import {
-  BALANCE_FORM_COLUMNS,
-  BALANCE_TABLE_NAME,
-  useAddTableData,
-  useUpdateTableData,
-} from '@/entities';
+import { useAddTableData, useUpdateTableData } from '@/entities';
 import { UniversalForm } from '@/shared';
 import { Modal } from '@mantine/core';
-import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-interface EditBalanceModalProps {
-  opened: boolean;
-  onClose: () => void;
-  balance: Record<string, any> | null;
-  refetch: () => void;
+interface FormColumn {
+  label: string;
+  type: string;
+  required?: boolean;
 }
 
-export const EditBalanceModal = ({ opened, onClose, balance, refetch }: EditBalanceModalProps) => {
-  const isNewBalance = !balance;
+interface UniversalEditModalProps {
+  opened: boolean;
+  onClose: () => void;
+  data: Record<string, any> | null;
+  refetch: () => void;
+  tableName: string;
+  formColumns: Record<string, FormColumn>;
+  idField: string;
+}
+
+export const UniversalEditModal = ({
+  opened,
+  onClose,
+  data,
+  refetch,
+  tableName,
+  formColumns,
+  idField,
+}: UniversalEditModalProps) => {
+  const isNew = !data;
   const { mutateAsync: addMutation } = useAddTableData();
   const { mutateAsync: updateMutation } = useUpdateTableData();
 
-  const [formColumns] = useState(BALANCE_FORM_COLUMNS);
-
-  // Подготавливаем начальные значения
-  const initialValues = {
-    name: balance?.name || '',
-  };
+  // Подготавливаем начальные значения из колонок формы
+  const initialValues = Object.keys(formColumns).reduce(
+    (acc, key) => ({
+      ...acc,
+      [key]: data?.[key] || '',
+    }),
+    {}
+  );
 
   const handleSubmit = async (values: Record<string, any>) => {
     try {
-      if (isNewBalance) {
+      if (isNew) {
         await addMutation({
-          tableName: BALANCE_TABLE_NAME,
+          tableName,
           data: [
             {
               // @ts-ignore
@@ -45,12 +58,12 @@ export const EditBalanceModal = ({ opened, onClose, balance, refetch }: EditBala
         });
       } else {
         await updateMutation({
-          tableName: BALANCE_TABLE_NAME,
+          tableName,
           data: [
             {
-              filter: [{ column: 'id_balance', value: balance.id_balance }],
+              filter: [{ column: idField, value: data[idField] }],
               row: Object.entries(values)
-                .filter(([key, value]) => value !== balance[key])
+                .filter(([key, value]) => value !== data[key])
                 .map(([column, value]) => ({
                   column,
                   value,
@@ -62,9 +75,9 @@ export const EditBalanceModal = ({ opened, onClose, balance, refetch }: EditBala
 
       onClose();
       refetch();
-      toast.success(isNewBalance ? 'Баланс добавлен' : 'Баланс обновлен');
+      toast.success(isNew ? 'Запись успешно добавлена' : 'Запись успешно обновлена');
     } catch (error) {
-      console.error('Error saving balance:', error);
+      console.error('Error saving data:', error);
       toast.error('Ошибка при сохранении данных');
     }
   };
@@ -73,7 +86,7 @@ export const EditBalanceModal = ({ opened, onClose, balance, refetch }: EditBala
     <Modal
       opened={opened}
       onClose={onClose}
-      title={isNewBalance ? 'Добавить баланс' : 'Редактировать баланс'}
+      title={isNew ? 'Добавить запись' : 'Редактировать запись'}
       size="lg"
     >
       {/* @ts-ignore */}

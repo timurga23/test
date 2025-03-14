@@ -1,13 +1,22 @@
-import { BalanceTable } from '@/widgets';
-import { Container, Title } from '@mantine/core';
+import type { Balance } from '@/entities';
+import {
+  BALANCE_COLUMNS,
+  BALANCE_FORM_COLUMNS,
+  BALANCE_ID_FIELD,
+  BALANCE_PAGE_TITLE,
+  BALANCE_TABLE_NAME,
+} from '@/entities';
+import { CrudTable, PageLayout } from '@/shared/ui';
 
 export const BalancePage = () => {
   return (
-    <Container size="xl" pl={0} pr={0} ml={20} mr={0} w="100%">
-      <Title order={2} mb="lg">
-        Балансы
-      </Title>
-      <BalanceTable />
-    </Container>
+    <PageLayout title={BALANCE_PAGE_TITLE}>
+      <CrudTable<Balance>
+        tableName={BALANCE_TABLE_NAME}
+        columns={BALANCE_COLUMNS}
+        formColumns={BALANCE_FORM_COLUMNS}
+        idField={BALANCE_ID_FIELD}
+      />
+    </PageLayout>
   );
 };

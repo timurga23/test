@@ -1,0 +1,2 @@
+export const RATE_TABLE_NAME = 'rate';
+export const RATE_ID_FIELD = 'id_rate';

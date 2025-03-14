@@ -5,4 +5,5 @@ export const routes = {
   LOGIN: '/login',
   CARDS: '/cards',
   BALANCE: '/balance',
+  RATE: '/rate',
 };

@@ -1,31 +1,23 @@
-import { POSITION_TABLE_NAME, Position, useTableData } from '@/entities';
-import { PositionTable } from '@/widgets';
-import { Flex, Loader, Text } from '@mantine/core';
-import { FC } from 'react';
+import {
+  POSITION_COLUMNS,
+  POSITION_FORM_COLUMNS,
+  POSITION_ID_FIELD,
+  POSITION_PAGE_TITLE,
+  POSITION_TABLE_NAME,
+  type Position,
+} from '@/entities';
+import { CrudTable, PageLayout } from '@/shared/ui';
 
-export const PositionsPage: FC = () => {
-  const {
-    data: positions,
-    isError: isErrorPositions,
-    isLoading: isLoadingPositions,
-  } = useTableData<Position>(POSITION_TABLE_NAME);
-
-  if (isLoadingPositions) {
-    return (
-      <Flex align="center" justify="center" h="100vh" w="100%">
-        <Loader />
-      </Flex>
-    );
-  }
-
-  if (isErrorPositions) {
-    return <Text>Ошибка при загрузке данных</Text>;
-  }
-
+export const PositionsPage = () => {
   return (
-    <Flex direction="column" gap={16} p={16}>
-      <Text size="h3">Наименование должностей</Text>
-      <PositionTable positions={positions || []} />
-    </Flex>
+    <PageLayout title={POSITION_PAGE_TITLE}>
+      <CrudTable<Position>
+        tableName={POSITION_TABLE_NAME}
+        columns={POSITION_COLUMNS}
+        formColumns={POSITION_FORM_COLUMNS}
+        idField={POSITION_ID_FIELD}
+        showAddButton={false}
+      />
+    </PageLayout>
   );
 };

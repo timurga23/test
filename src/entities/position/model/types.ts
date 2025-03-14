@@ -1,6 +1,5 @@
 import { ColumnTypeToValue, IBaseColumn } from '@/shared';
 
-// Типизация колонок таблицы Position
 interface PositionColumns {
   id_position: IBaseColumn & {
     type: 'UUID_AUTO_GENERATE';
