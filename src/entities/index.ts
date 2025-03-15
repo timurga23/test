@@ -3,6 +3,7 @@ export * from './bank/index';
 export * from './card/index';
 export * from './employee';
 export * from './employee-positions';
+export * from './operation-card';
 export * from './position';
 export * from './rate/index';
 export * from './user';
