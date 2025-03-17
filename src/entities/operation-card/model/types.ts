@@ -1,4 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared';
+import { IBaseColumn, TableType } from '@/shared';
 
 interface OperationCardColumns {
   id_operation_card: IBaseColumn & {
@@ -32,11 +32,7 @@ interface OperationCardColumns {
 }
 
 // Тип для значений в таблице
-export type OperationCard = {
-  [K in keyof OperationCardColumns]: OperationCardColumns[K]['nullable'] extends true
-    ? ColumnTypeToValue[OperationCardColumns[K]['type']] | null
-    : ColumnTypeToValue[OperationCardColumns[K]['type']];
-};
+export type OperationCard = TableType<OperationCardColumns>;
 
 export interface NormalizedOperationCard {
   date: OperationCard['date'];

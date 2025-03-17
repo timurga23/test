@@ -1,4 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared';
+import { IBaseColumn, TableType } from '@/shared';
 
 // Типизация конкретной таблицы EmployeePositions
 interface EmployeePositionsColumns {
@@ -13,8 +13,4 @@ interface EmployeePositionsColumns {
 }
 
 // Тип для значений в таблице (используя ColumnTypeToValue)
-export type EmployeePosition = {
-  [K in keyof EmployeePositionsColumns]: EmployeePositionsColumns[K]['nullable'] extends true
-    ? ColumnTypeToValue[EmployeePositionsColumns[K]['type']] | null
-    : ColumnTypeToValue[EmployeePositionsColumns[K]['type']];
-};
+export type EmployeePosition = TableType<EmployeePositionsColumns>;

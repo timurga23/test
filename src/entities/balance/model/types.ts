@@ -1,4 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared';
+import { IBaseColumn, TableType } from '@/shared';
 
 interface BalanceColumns {
   id_balance: IBaseColumn & {
@@ -13,11 +13,7 @@ interface BalanceColumns {
 }
 
 // Тип для значений в таблице
-export type Balance = {
-  [K in keyof BalanceColumns]: BalanceColumns[K]['nullable'] extends true
-    ? ColumnTypeToValue[BalanceColumns[K]['type']] | null
-    : ColumnTypeToValue[BalanceColumns[K]['type']];
-};
+export type Balance = TableType<BalanceColumns>;
 
 export interface NormalizedBalance extends Omit<Balance, 'id_balance'> {
   balance: Balance['name'];

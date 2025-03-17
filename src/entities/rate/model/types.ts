@@ -1,4 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared';
+import { IBaseColumn, TableType } from '@/shared';
 
 interface RateColumns {
   id_rate: IBaseColumn & {
@@ -20,12 +20,7 @@ interface RateColumns {
   };
 }
 
-// Тип для значений в таблице
-export type Rate = {
-  [K in keyof RateColumns]: RateColumns[K]['nullable'] extends true
-    ? ColumnTypeToValue[RateColumns[K]['type']] | null
-    : ColumnTypeToValue[RateColumns[K]['type']];
-};
+export type Rate = TableType<RateColumns>;
 
 export interface NormalizedRate extends Omit<Rate, 'id_rate'> {
   rate: Rate['name'];

@@ -8,3 +8,4 @@ export * from './position';
 export * from './rate/index';
 export * from './user';
 export * from './user-table';
+export * from './client';

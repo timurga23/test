@@ -1,4 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared';
+import { IBaseColumn, TableType } from '@/shared';
 
 interface CardColumns {
   id_card: IBaseColumn & {
@@ -41,9 +41,4 @@ interface CardColumns {
   };
 }
 
-// Тип для значений в таблице
-export type Card = {
-  [K in keyof CardColumns]: CardColumns[K]['nullable'] extends true
-    ? ColumnTypeToValue[CardColumns[K]['type']] | null
-    : ColumnTypeToValue[CardColumns[K]['type']];
-};
+export type Card = TableType<CardColumns>;

@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { BalancePage } from './balance/ui/page';
 import { CardsPage } from './cards/ui/page';
+import { ClientsPage } from './clients/ui/page';
 import { EmployersPage } from './employers';
 import { LoginPage } from './login';
 import { OperationCardsPage } from './operation-cards/ui/page';
@@ -41,5 +42,9 @@ export const router = createBrowserRouter([
   {
     path: '/operation-cards',
     element: <OperationCardsPage />,
+  },
+  {
+    path: '/clients',
+    element: <ClientsPage />,
   },
 ]);

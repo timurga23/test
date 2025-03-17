@@ -4,3 +4,4 @@ export * from './page-layout/page-layout';
 export * from './table/table';
 export * from './universal-edit-modal/universal-edit-modal';
 export * from './universal-form/universal-form';
+export * from './table-link/table-link';

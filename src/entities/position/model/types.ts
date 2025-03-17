@@ -1,4 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared';
+import { IBaseColumn, TableType } from '@/shared';
 
 interface PositionColumns {
   id_position: IBaseColumn & {
@@ -13,8 +13,4 @@ interface PositionColumns {
 }
 
 // Тип для значений в таблице
-export type Position = {
-  [K in keyof PositionColumns]: PositionColumns[K]['nullable'] extends true
-    ? ColumnTypeToValue[PositionColumns[K]['type']] | null
-    : ColumnTypeToValue[PositionColumns[K]['type']];
-};
+export type Position = TableType<PositionColumns>;

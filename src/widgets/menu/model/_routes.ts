@@ -1,6 +1,7 @@
 import {
   BALANCE_PAGE_TITLE,
   CARD_PAGE_TITLE,
+  CLIENT_PAGE_TITLE,
   EMPLOYEE_PAGE_TITLE,
   OPERATION_CARD_PAGE_TITLE,
   POSITION_PAGE_TITLE,
@@ -17,6 +18,7 @@ export const tabs = {
     { link: '/balance', label: BALANCE_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/rate', label: RATE_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/operation-cards', label: OPERATION_CARD_PAGE_TITLE, icon: IconReceipt2 },
+    { link: '/clients', label: CLIENT_PAGE_TITLE, icon: IconReceipt2 },
   ],
   general: [{ link: '/partners', label: 'Партнеры', icon: IconDatabaseImport }],
 };

@@ -1,6 +1,4 @@
-import { ColumnTypeToValue, IBaseColumn } from '@/shared';
-// import { EMPLOYEE_TABLE_NAME } from './_constant';
-// Типизация конкретной таблицы Employee
+import { IBaseColumn, TableType } from '@/shared';
 interface EmployeeColumns {
   id_employee: IBaseColumn & {
     type: 'UUID_AUTO_GENERATE';
@@ -47,12 +45,7 @@ interface EmployeeColumns {
   };
 }
 
-// Тип для значений в таблице (используя ColumnTypeToValue)
-export type Employee = {
-  [K in keyof EmployeeColumns]: EmployeeColumns[K]['nullable'] extends true
-    ? ColumnTypeToValue[EmployeeColumns[K]['type']] | null
-    : ColumnTypeToValue[EmployeeColumns[K]['type']];
-};
+export type Employee = TableType<EmployeeColumns>;
 
 // Типизация самой таблицы
 // interface EmployeeTable extends ITable {
