@@ -1,13 +1,8 @@
-import { useAddTableData, useUpdateTableData } from '@/entities';
-import { UniversalForm } from '@/shared';
+import { useAddTableData, useTableData, useUpdateTableData } from '@/entities/user-table';
+import { formatDateForServer, UniversalForm } from '@/shared';
 import { Modal } from '@mantine/core';
+import { useMemo } from 'react';
 import { toast } from 'react-toastify';
-
-interface FormColumn {
-  label: string;
-  type: string;
-  required?: boolean;
-}
 
 interface UniversalEditModalProps {
   opened: boolean;
@@ -15,8 +10,15 @@ interface UniversalEditModalProps {
   data: Record<string, any> | null;
   refetch: () => void;
   tableName: string;
-  formColumns: Record<string, FormColumn>;
+  formColumns: Record<string, any>;
   idField: string;
+  relations?: {
+    [key: string]: {
+      tableName: string;
+      valueField: string;
+      labelField: string;
+    };
+  };
 }
 
 export const UniversalEditModal = ({
@@ -27,35 +29,79 @@ export const UniversalEditModal = ({
   tableName,
   formColumns,
   idField,
+  relations = {},
 }: UniversalEditModalProps) => {
-  const isNew = !data;
   const { mutateAsync: addMutation } = useAddTableData();
   const { mutateAsync: updateMutation } = useUpdateTableData();
 
-  // Подготавливаем начальные значения из колонок формы
-  const initialValues = Object.keys(formColumns).reduce(
-    (acc, key) => ({
-      ...acc,
-      [key]: data?.[key] || '',
-    }),
-    {}
+  // Создаем уникальный список таблиц для запросов
+  const uniqueTableNames = useMemo(
+    () => [...new Set(Object.values(relations).map((r) => r.tableName))],
+    [relations]
   );
+
+  // Создаем один объект с данными всех таблиц
+  const relationsData = uniqueTableNames.reduce(
+    (acc, name) => {
+      const { data: tableData } = useTableData(name);
+      acc[name] = tableData || [];
+      return acc;
+    },
+    {} as Record<string, any[]>
+  );
+
+  // Мемоизируем обновленные колонки формы
+  const updatedFormColumns = useMemo(() => {
+    const newFormColumns = { ...formColumns };
+
+    for (const fieldName in newFormColumns) {
+      if (newFormColumns[fieldName]?.fieldType === 'select' && relations[fieldName]) {
+        const { tableName, valueField, labelField } = relations[fieldName];
+        const tableData = relationsData[tableName];
+
+        if (tableData) {
+          newFormColumns[fieldName] = {
+            ...newFormColumns[fieldName],
+            options: tableData.map((item: any) => ({
+              value: item[valueField],
+              label: item[labelField],
+            })),
+          };
+        }
+      }
+    }
+
+    return newFormColumns;
+  }, [formColumns, relations, relationsData]);
 
   const handleSubmit = async (values: Record<string, any>) => {
     try {
-      if (isNew) {
+      if (!data) {
+        const formattedValues = Object.entries(values).reduce(
+          (acc, [key, value]) => {
+            if (key.toLowerCase().includes('date')) {
+              acc[key] = formatDateForServer(value);
+            } else {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {} as Record<string, any>
+        );
+
         await addMutation({
           tableName,
           data: [
             {
               // @ts-ignore
-              row: Object.entries(values).map(([column, value]) => ({
+              row: Object.entries(formattedValues).map(([column, value]) => ({
                 column,
                 value,
               })),
             },
           ],
         });
+        toast.success('Запись добавлена');
       } else {
         await updateMutation({
           tableName,
@@ -71,11 +117,11 @@ export const UniversalEditModal = ({
             },
           ],
         });
+        toast.success('Запись обновлена');
       }
 
       onClose();
       refetch();
-      toast.success(isNew ? 'Запись успешно добавлена' : 'Запись успешно обновлена');
     } catch (error) {
       console.error('Error saving data:', error);
       toast.error('Ошибка при сохранении данных');
@@ -86,11 +132,14 @@ export const UniversalEditModal = ({
     <Modal
       opened={opened}
       onClose={onClose}
-      title={isNew ? 'Добавить запись' : 'Редактировать запись'}
+      title={!data ? 'Добавить запись' : 'Редактировать запись'}
       size="lg"
     >
-      {/* @ts-ignore */}
-      <UniversalForm columns={formColumns} defaultValues={initialValues} onSubmit={handleSubmit} />
+      <UniversalForm
+        columns={updatedFormColumns}
+        defaultValues={data || {}}
+        onSubmit={handleSubmit}
+      />
     </Modal>
   );
 };

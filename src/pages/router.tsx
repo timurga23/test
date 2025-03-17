@@ -1,47 +1,45 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import { routes } from '@/shared';
-
+import { BalancePage } from './balance/ui/page';
+import { CardsPage } from './cards/ui/page';
 import { EmployersPage } from './employers';
 import { LoginPage } from './login';
-import { PositionsPage } from './positions/ui/page';
-import { WelcomePage } from './welcome';
-import { CardsPage } from './cards/ui/page';
-import { BalancePage } from './balance/ui/page';
-import { RatePage } from './rate/ui/page';
 import { OperationCardsPage } from './operation-cards/ui/page';
+import { PositionsPage } from './positions/ui/page';
+import { RatePage } from './rate/ui/page';
+import { WelcomePage } from './welcome';
 
 export const router = createBrowserRouter([
   {
-    path: routes.WELCOME,
+    path: '/',
     element: <WelcomePage />,
   },
   {
-    path: routes.POSITIONS,
+    path: '/positions',
     element: <PositionsPage />,
   },
   {
-    path: routes.EMPLOYERS,
+    path: '/employers',
     element: <EmployersPage />,
   },
   {
-    path: routes.LOGIN,
+    path: '/login',
     element: <LoginPage />,
   },
   {
-    path: routes.CARDS,
+    path: '/cards',
     element: <CardsPage />,
   },
   {
-    path: routes.BALANCE,
+    path: '/balance',
     element: <BalancePage />,
   },
   {
-    path: routes.RATE,
+    path: '/rate',
     element: <RatePage />,
   },
   {
-    path: routes.OPERATION_CARDS,
+    path: '/operation-cards',
     element: <OperationCardsPage />,
   },
 ]);

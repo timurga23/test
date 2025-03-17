@@ -15,7 +15,7 @@ export const OPERATION_CARD_FORM_COLUMNS: Record<string, BaseColumn<keyof Column
     options: [], // Будет заполняться динамически
   },
   date: {
-    type: 'BIG_INTEGER',
+    type: 'DATE',
     label: 'Дата',
     fieldType: 'date',
   },
