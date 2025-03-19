@@ -1,15 +1,5 @@
-import {
-  Box,
-  Center,
-  Flex,
-  Group,
-  ScrollArea,
-  Table,
-  Text,
-  TextInput,
-  UnstyledButton,
-} from '@mantine/core';
-import { IconChevronDown, IconChevronUp, IconSearch, IconSelector } from '@tabler/icons-react';
+import { Center, Group, Skeleton, Table, Text, UnstyledButton } from '@mantine/core';
+import { IconChevronDown, IconChevronUp, IconSelector } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import styles from './index.module.scss';
 
@@ -27,6 +17,7 @@ interface TableSortProps<T extends Record<string, any>> {
   columns: ITableColumn<T>[];
   onRowClick?: (row: T) => void;
   isSearchable?: boolean;
+  isLoading?: boolean;
 }
 
 interface ThProps {
@@ -116,13 +107,12 @@ function sortData<T>(
   );
 }
 
-export function TableSort<T extends Record<string, any>>({
+export const TableSort = <T extends Record<string, any>>({
   data,
   columns,
   onRowClick,
-  isSearchable = false,
-}: TableSortProps<T>) {
-  const [search, setSearch] = useState('');
+  isLoading,
+}: TableSortProps<T>) => {
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<keyof T | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
@@ -135,77 +125,65 @@ export function TableSort<T extends Record<string, any>>({
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
     setSortBy(field);
-    setSortedData(sortData(data, { sortBy: field, reversed, search }));
+    setSortedData(sortData(data, { sortBy: field, reversed, search: '' }));
   };
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.currentTarget;
-    setSearch(value);
-    setSortedData(sortData(data, { sortBy, reversed: reverseSortDirection, search: value }));
-  };
-
-  const rows = sortedData.map((row, index) => (
-    <Table.Tr key={index} onClick={() => onRowClick?.(row)} style={{ cursor: 'pointer' }}>
-      {columns.map((column) => (
-        <Table.Td key={column.key as string}>
-          {column.render ? column.render(row) : String(row[column.key] ?? '-')}
-        </Table.Td>
-      ))}
-    </Table.Tr>
-  ));
 
   return (
-    <Flex direction="column" gap="md">
-      {isSearchable && (
-        <TextInput
-          placeholder="Поиск"
-          leftSection={<IconSearch size={16} stroke={1.5} />}
-          value={search}
-          onChange={handleSearchChange}
-          w={300}
-        />
-      )}
-      <ScrollArea>
-        <Box style={{ width: 'fit-content' }}>
-          <Table
-            horizontalSpacing="md"
-            verticalSpacing="xs"
-            layout="fixed"
-            style={{ width: 'auto' }}
-          >
-            <Table.Thead>
-              <Table.Tr>
-                {columns.map((column) => (
-                  <Th
-                    key={String(column.key)}
-                    sorted={sortBy === column.key}
-                    reversed={reverseSortDirection}
-                    onSort={() => setSorting(column.key as keyof T)}
-                    sortable={column.sortable}
-                    width={column.width}
-                    minWidth={column.minWidth}
-                  >
-                    {column.label}
-                  </Th>
-                ))}
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {rows.length > 0 ? (
-                rows
-              ) : (
-                <Table.Tr>
-                  <Table.Td colSpan={columns.length}>
-                    <Text fw={500} ta="center">
-                      Ничего не найдено
-                    </Text>
-                  </Table.Td>
+    <Table.ScrollContainer minWidth={500}>
+      <Table verticalSpacing="sm" highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
+            {columns.map((column) => (
+              <Th
+                key={String(column.key)}
+                sorted={sortBy === column.key}
+                reversed={reverseSortDirection}
+                onSort={() => setSorting(column.key as keyof T)}
+                sortable={column.sortable}
+                width={column.width}
+                minWidth={column.minWidth}
+              >
+                {column.label}
+              </Th>
+            ))}
+          </Table.Tr>
+        </Table.Thead>
+
+        <Table.Tbody>
+          {isLoading
+            ? // Скелетон с тем же количеством строк, что и в данных
+              Array.from({ length: data.length || 10 }).map((_, rowIndex) => (
+                <Table.Tr key={`skeleton-${rowIndex}`}>
+                  {columns.map((column, colIndex) => (
+                    <Table.Td
+                      key={`skeleton-${rowIndex}-${colIndex}`}
+                      style={{
+                        width: column.width,
+                        minWidth: column.minWidth,
+                      }}
+                    >
+                      <Skeleton height={24} />
+                    </Table.Td>
+                  ))}
                 </Table.Tr>
-              )}
-            </Table.Tbody>
-          </Table>
-        </Box>
-      </ScrollArea>
-    </Flex>
+              ))
+            : sortedData.map((row) => (
+                <Table.Tr
+                  // @ts-ignore
+                  key={row?.id}
+                  onClick={() => onRowClick?.(row)}
+                  style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                >
+                  {columns.map((column) => (
+                    // @ts-ignore
+                    <Table.Td key={column.key}>
+                      {column.render ? column.render(row) : row[column.key]}
+                    </Table.Td>
+                  ))}
+                </Table.Tr>
+              ))}
+        </Table.Tbody>
+      </Table>
+    </Table.ScrollContainer>
   );
-}
+};

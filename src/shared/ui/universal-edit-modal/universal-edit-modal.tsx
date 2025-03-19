@@ -44,9 +44,9 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   const uniqueTableNames = useMemo(() => {
     const tables = new Set<string>();
 
-    Object.entries(formColumns).forEach(([_, column]) => {
-      if (column?.fieldType === 'select' && relations[column.key]) {
-        tables.add(relations[column.key].tableName);
+    Object.entries(formColumns).forEach(([key, column]) => {
+      if (column?.fieldType === 'select' && relations[key]) {
+        tables.add(relations[key].tableName);
       } else if (column?.fieldType === 'multiselect' && column?.relation) {
         tables.add(column?.relation?.table);
         if (column?.relation?.through) {
@@ -75,7 +75,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     for (const fieldName in newFormColumns) {
       const column = newFormColumns[fieldName];
 
-      if (column.fieldType === 'select' && relations[fieldName]) {
+      if (column?.fieldType === 'select' && relations[fieldName]) {
         const { tableName, valueField, labelField } = relations[fieldName];
         const tableData = relationsData[tableName];
 
@@ -88,7 +88,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
             })),
           };
         }
-      } else if (column?.fieldType === 'multiselect' && column.relation) {
+      } else if (column?.fieldType === 'multiselect' && column?.relation) {
         const { table, value, label, through } = column.relation;
         const tableData = relationsData[table];
         const throughData = through ? relationsData[through.table] : null;
@@ -124,8 +124,11 @@ export const UniversalEditModal = <T extends Record<string, any>>({
         (acc, [key, value]) => {
           const column = formColumns[key];
 
-          if (column?.fieldType === 'multiselect' && column?.relation?.through) {
-            // Пропускаем это поле, оно будет обработано отдельно
+          // Пропускаем поля с through отношениями (и select, и multiselect)
+          if (
+            (column?.fieldType === 'select' || column?.fieldType === 'multiselect') &&
+            column?.relation?.through
+          ) {
             return acc;
           }
 
@@ -157,7 +160,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
         // Обработка связей many-to-many после создания основной записи
         const newId = result[0][idField];
         // @ts-ignore
-        await handleManyToManyRelations(values, newId);
+        await handleRelations(values, newId);
 
         toast.success('Запись добавлена');
       } else {
@@ -181,8 +184,8 @@ export const UniversalEditModal = <T extends Record<string, any>>({
           });
         }
 
-        // Обновление связей many-to-many
-        await handleManyToManyRelations(values, data[idField]);
+        // Обновление связей
+        await handleRelations(values, data[idField]);
 
         toast.success('Запись обновлена');
       }
@@ -195,31 +198,56 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     }
   };
 
-  const handleManyToManyRelations = async (values: Record<string, any>, recordId: string) => {
+  // Обновленная функция для обработки всех типов связей
+  const handleRelations = async (values: Record<string, any>, recordId: string) => {
     for (const [fieldName, value] of Object.entries(values)) {
       const column = formColumns[fieldName];
-      if (column?.fieldType === 'multiselect' && column?.relation?.through) {
-        const { through } = column.relation;
+      if (!column?.relation?.through) continue;
 
+      const { through } = column.relation;
+
+      const isAddMultiselect =
+        column?.fieldType === 'multiselect' &&
+        Array.isArray(value) &&
+        value.length > 0 &&
+        !value?.some((item: any) => !item);
+      const isAddSelect = column?.fieldType === 'select' && value;
+
+      if (isAddSelect || isAddMultiselect) {
         // Сначала удаляем все существующие связи
         await deleteMutation({
           tableName: through.table,
           data: [{ column: through.relationKey, value: recordId }],
         });
+      }
 
-        // Добавляем новые связи
-        if (Array.isArray(value) && value.length > 0) {
-          await addMutation({
-            tableName: through.table,
-            // @ts-ignore
-            data: value.map((foreignId) => ({
+      // Добавляем новые связи
+      if (isAddMultiselect) {
+        // Для multiselect добавляем все выбранные значения
+        await addMutation({
+          tableName: through.table,
+          // @ts-ignore
+          data: value.map((foreignId) => ({
+            row: [
+              { column: through.relationKey, value: recordId },
+              { column: through.foreignKey, value: foreignId },
+            ],
+          })),
+        });
+      } else if (isAddSelect) {
+        // Для select добавляем одно значение
+        await addMutation({
+          tableName: through.table,
+          data: [
+            {
+              // @ts-ignore
               row: [
                 { column: through.relationKey, value: recordId },
-                { column: through.foreignKey, value: foreignId },
+                { column: through.foreignKey, value: value },
               ],
-            })),
-          });
-        }
+            },
+          ],
+        });
       }
     }
   };

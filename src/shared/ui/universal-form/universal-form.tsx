@@ -61,12 +61,19 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
 
     // Обработка значений для multiselect полей
     Object.entries(columns).forEach(([key, column]) => {
-      if (column?.fieldType === 'multiselect' && Array.isArray(data[key])) {
+      if (column?.fieldType === 'multiselect') {
         // @ts-ignore
         processedValues[key] = data[key].map(
           (item: any) =>
             column.options?.find((option) => option.value === item || option.label === item)?.value
         );
+      }
+
+      if (column?.fieldType === 'select') {
+        // @ts-ignore
+        processedValues[key] = column.options?.find(
+          (option) => option.label === data[key] || option.value === data[key]
+        )?.value;
       }
     });
 
@@ -88,21 +95,29 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
               render={({ field }) => {
                 switch (column.type) {
                   case 'TEXT':
-                    if (column.fieldType === 'select' && column.options) {
+                    if (column?.fieldType === 'select' && column.options) {
+                      const value =
+                        column.options?.find((option) => option.label === field.value)?.value || '';
+
                       return (
                         <Select
                           label={column.label || key}
                           data={column.options}
-                          value={String(field.value || '')}
+                          value={value}
                           onChange={(newValue) => field.onChange(newValue || '')}
                           clearable
                           placeholder={column.placeholder}
                         />
                       );
                     }
-                    if (column.fieldType === 'multiselect' && column.options) {
+                    if (column?.fieldType === 'multiselect' && column.options) {
                       const value = Array.isArray(field.value)
-                        ? field.value.map((item) => item?.name || item)
+                        ? field.value.map((id) => {
+                            // Ищем соответствующую опцию по value (id) и берем её label
+                            // @ts-ignore
+                            const option = column.options.find((opt) => opt.value === id);
+                            return option?.label || '';
+                          })
                         : [];
 
                       return (
@@ -116,7 +131,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         />
                       );
                     }
-                    return column.fieldType === 'password' ? (
+                    return column?.fieldType === 'password' ? (
                       <PasswordInput
                         label={column.label || key}
                         value={String(field.value || '')}
@@ -132,10 +147,18 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                       />
                     );
                   case 'UUID':
-                    if (column.fieldType === 'multiselect' && column.options) {
-                      const value = Array.isArray(field.value)
-                        ? field.value.map((item) => item?.name || item)
-                        : [];
+                    if (column?.fieldType === 'multiselect' && column.options) {
+                      const value =
+                        Array.isArray(field.value) &&
+                        !field.value.some((item) => typeof item === 'string' && !item)
+                          ? field.value.map((item) => {
+                              // Находим опцию по значению
+                              const option = column.options?.find(
+                                (option) => option.label === item.name || option.value === item.name
+                              );
+                              return option?.label ?? item;
+                            })
+                          : [];
 
                       return (
                         <MultiSelect
@@ -148,11 +171,17 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         />
                       );
                     }
+
+                    const value =
+                      column.options?.find(
+                        (option) => option.label === field.value || option.value === field.value
+                      )?.value ?? null;
+
                     return (
                       <Select
                         label={column.label || key}
                         data={column.options || []}
-                        value={String(field.value || '')}
+                        value={value}
                         onChange={(newValue) => field.onChange(newValue || '')}
                         clearable
                         placeholder={column.placeholder}

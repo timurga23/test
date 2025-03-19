@@ -5,8 +5,8 @@ import { ActionIcon, Button, Drawer, Group, Pagination, TextInput } from '@manti
 import { IconFilter, IconPlus, IconSearch } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { FilterPanel } from './filter-panel';
-import { Filter } from './types';
+import { FilterPanel } from '../filter-panel/filter-panel';
+import { Filter } from '../filter-panel/types';
 
 interface CrudTableProps<T, N> {
   tableName: string;
@@ -56,11 +56,34 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
 
   const queryClient = useQueryClient();
 
-  const { data } = useTableData<T>(tableName);
-  const relationsData = Object.entries(relations).reduce((acc, [table]) => {
-    const { data: relationData } = useTableData(table);
-    return { ...acc, [table]: relationData };
-  }, {});
+  const { data, isLoading: isMainLoading } = useTableData<T>(tableName);
+
+  // Получаем данные и состояния загрузки для связанных таблиц
+  const { relationsData, relationsLoading }: any = Object.entries(relations).reduce(
+    //@ts-ignore
+    (acc, [table]) => {
+      const { data: relationData, isLoading } = useTableData(table);
+      return {
+        relationsData: { ...acc.relationsData, [table]: relationData },
+        relationsLoading: [...acc.relationsLoading, isLoading],
+      };
+    },
+    { relationsData: {}, relationsLoading: [] }
+  );
+
+  // Получаем состояния загрузки для таблиц из formRelations
+  const formRelationsLoadingStates = Object.entries(formRelations).map(([_, relation]) => {
+    const { isLoading } = useTableData(relation.tableName);
+    return isLoading;
+  });
+
+  // Общее состояние загрузки
+  const isLoading =
+    isMainLoading ||
+    relationsLoading.some((state: any) => state) ||
+    formRelationsLoadingStates.some((state: any) => state);
+
+  console.log(112, isLoading);
 
   const normalizedData = normalizeData ? normalizeData(data || [], relationsData) : data || [];
 
@@ -85,7 +108,21 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
         case 'select':
           if (filterValues[filter.field]) {
             // @ts-ignore
-            result = result.filter((item) => item[filter.field] === filterValues[filter.field]);
+            result = result.filter((item) => {
+              // @ts-ignore
+              const fieldValue = item[filter.field];
+
+              // Если значение - массив объектов
+              if (Array.isArray(fieldValue) && filter.searchField) {
+                return fieldValue.some(
+                  // @ts-ignore
+                  (obj) => obj[filter.searchField] === filterValues[filter.field]
+                );
+              }
+
+              // Обычная фильтрация
+              return fieldValue === filterValues[filter.field];
+            });
           }
           break;
         case 'date-range':
@@ -210,6 +247,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
       </Group>
 
       <TableSort
+        isLoading={isLoading}
         // @ts-ignore
         data={paginatedData}
         columns={columns}

@@ -10,6 +10,7 @@ export interface SelectFilter extends BaseFilter {
   type: 'select';
   relationKey: string;
   getOptions: (data: any[]) => { value: string; label: string }[];
+  searchField?: string;
 }
 
 export interface DateRangeFilter extends BaseFilter {

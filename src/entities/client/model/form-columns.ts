@@ -65,6 +65,23 @@ export const CLIENT_FORM_COLUMNS = {
     nullable: true,
     label: 'Пароль',
     placeholder: 'Введите пароль',
+    fieldType: 'password',
+  },
+  city: {
+    type: 'UUID',
+    nullable: true,
+    label: 'Город',
+    fieldType: 'select',
+    relation: {
+      table: 'city',
+      value: 'id_city',
+      label: 'name',
+      through: {
+        table: 'client_citys',
+        foreignKey: 'id_city',
+        relationKey: 'id_client',
+      },
+    },
   },
   services: {
     type: 'UUID',

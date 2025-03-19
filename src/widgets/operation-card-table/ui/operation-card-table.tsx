@@ -7,7 +7,7 @@ import {
   OperationCard,
 } from '@/entities/operation-card';
 import { CrudTable } from '@/shared/ui';
-import { Filter } from '@/shared/ui/crud-table/types';
+import { Filter } from '@/shared/ui/filter-panel/types';
 
 export const OperationCardTable = () => {
   const normalizeData = (

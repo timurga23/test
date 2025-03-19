@@ -1,5 +1,5 @@
 import { CLIENT_COLUMNS, CLIENT_FORM_COLUMNS, CLIENT_TABLE_NAME, Client } from '@/entities/client';
-import { CrudTable } from '@/shared/ui';
+import { CrudTable, Filter } from '@/shared/ui';
 
 interface NormalizedClient extends Client {
   city: string;
@@ -38,6 +38,21 @@ export const ClientTable = () => {
       };
     });
   };
+
+  const filters: Filter[] = [
+    {
+      type: 'select',
+      field: 'services',
+      label: 'Услуга',
+      relationKey: 'service',
+      searchField: 'id_service',
+      getOptions: (data) =>
+        data.map((item: any) => ({
+          value: item.id_service,
+          label: item.name,
+        })),
+    },
+  ];
 
   return (
     <CrudTable<Client, NormalizedClient>
@@ -78,8 +93,14 @@ export const ClientTable = () => {
           valueField: 'id_service',
           labelField: 'name',
         },
+        city: {
+          tableName: 'city',
+          valueField: 'id_city',
+          labelField: 'name',
+        },
       }}
       searchableColumns={['name', 'city']}
+      filters={filters}
     />
   );
 };
