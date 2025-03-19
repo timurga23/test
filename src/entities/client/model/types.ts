@@ -1,9 +1,8 @@
 import { IBaseColumn, TableType } from '@/shared';
 
-interface ClientColumns {
+export interface ClientColumns {
   id_client: IBaseColumn & {
-    type: 'UUID_AUTO_GENERATE';
-    unique: true;
+    type: 'UUID';
     nullable: false;
   };
   organization: IBaseColumn & {
@@ -41,7 +40,6 @@ interface ClientColumns {
   relevance: IBaseColumn & {
     type: 'BOOLEAN';
     nullable: true;
-    defaultValue: 'true';
   };
   login: IBaseColumn & {
     type: 'TEXT';
@@ -55,7 +53,10 @@ interface ClientColumns {
 
 export type Client = TableType<ClientColumns>;
 
-export interface NormalizedClient
-  extends Pick<Client, 'id_client' | 'name' | 'phone_number' | 'link_table' | 'bitrix'> {
+export interface NormalizedClient extends Pick<Client, keyof ClientColumns> {
   city: string;
+  services: Array<{
+    id_service: string;
+    name: string;
+  }>;
 }

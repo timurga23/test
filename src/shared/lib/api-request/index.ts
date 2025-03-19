@@ -61,13 +61,12 @@ export async function apiRequest<T>({
   try {
     const response = await fetch(url, options);
 
-    const res = await response.json();
-
     if (response.status === 401) {
       removeAuthToken();
     }
 
     if (response.status >= 299) {
+      const res = await response.json();
       // @ts-ignore
       throw new Error(res.message);
     }
@@ -84,7 +83,12 @@ export async function apiRequest<T>({
       return response as unknown as T;
     }
 
-    return res;
+    const text = await response.text();
+    if (!text) {
+      return null as T;
+    }
+
+    return JSON.parse(text);
   } catch (error) {
     console.error('❌ API Error:', error);
     throw error;

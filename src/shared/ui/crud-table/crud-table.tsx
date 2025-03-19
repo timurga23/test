@@ -3,6 +3,7 @@ import { UniversalEditModal } from '@/shared/ui';
 import { TableSort } from '@/shared/ui/table/table';
 import { ActionIcon, Button, Drawer, Group, Pagination, TextInput } from '@mantine/core';
 import { IconFilter, IconPlus, IconSearch } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { FilterPanel } from './filter-panel';
 import { Filter } from './types';
@@ -46,14 +47,16 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   searchableColumns = [], // По умолчанию пустой массив
   filters = [],
 }: CrudTableProps<T, N>) => {
-  const [selected, setSelected] = useState<T | null>(null);
+  const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
   const [filterDrawerOpened, setFilterDrawerOpened] = useState(false);
   const [filterValues, setFilterValues] = useState<Record<string, any>>({});
   const [activePage, setActivePage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data, refetch } = useTableData<T>(tableName);
+  const queryClient = useQueryClient();
+
+  const { data } = useTableData<T>(tableName);
   const relationsData = Object.entries(relations).reduce((acc, [table]) => {
     const { data: relationData } = useTableData(table);
     return { ...acc, [table]: relationData };
@@ -115,10 +118,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const handleEdit = (item: N) => {
-    const originalItem =
-      // @ts-ignore
-      data?.find((i) => i[`id_${tableName}`] === item[`id_${tableName}`]) || null;
-    setSelected(originalItem);
+    setSelected(item);
     setModalOpened(true);
   };
 
@@ -155,11 +155,26 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     });
   }, [filters, relationsData]);
 
+  const handleRefetch = () => {
+    // Рефетчим основную таблицу
+    queryClient.invalidateQueries({ queryKey: ['table', tableName] });
+
+    // Рефетчим связанные таблицы
+    Object.entries(relations).forEach(([table]) => {
+      queryClient.invalidateQueries({ queryKey: ['table', table] });
+    });
+
+    // Рефетчим таблицы из formRelations
+    Object.entries(formRelations).forEach(([_, relation]) => {
+      queryClient.invalidateQueries({ queryKey: ['table', relation.tableName] });
+    });
+  };
+
   const modalProps = {
     opened: modalOpened,
     onClose: () => setModalOpened(false),
     data: selected,
-    refetch,
+    refetch: handleRefetch,
     tableName,
     formColumns,
     idField,
@@ -226,6 +241,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
       {CustomEditModal ? (
         <CustomEditModal {...modalProps} />
       ) : (
+        // @ts-ignore
         <UniversalEditModal {...modalProps} />
       )}
     </>

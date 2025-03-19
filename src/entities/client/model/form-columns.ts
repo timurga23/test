@@ -66,4 +66,20 @@ export const CLIENT_FORM_COLUMNS = {
     label: 'Пароль',
     placeholder: 'Введите пароль',
   },
+  services: {
+    type: 'UUID',
+    nullable: true,
+    label: 'Сервисы',
+    fieldType: 'multiselect',
+    relation: {
+      table: 'service',
+      value: 'id_service',
+      label: 'name',
+      through: {
+        table: 'client_services',
+        foreignKey: 'id_service',
+        relationKey: 'id_client',
+      },
+    },
+  },
 };

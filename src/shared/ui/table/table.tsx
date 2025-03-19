@@ -76,7 +76,7 @@ function Th({ children, reversed, sorted, onSort, sortable = false, width, minWi
 }
 
 function filterData<T>(data: T[], search: string) {
-  const query = search.toLowerCase().trim();
+  const query = search?.toLowerCase()?.trim();
   return data.filter((item) => {
     const objectKeys = Object.keys(item as Record<string, any>);
 

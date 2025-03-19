@@ -1,6 +1,7 @@
 import { ColumnTypeToValue } from '@/shared';
 import {
   Button,
+  MultiSelect,
   NumberInput,
   PasswordInput,
   Select,
@@ -18,7 +19,7 @@ export type BaseColumn<T extends keyof ColumnTypeToValue> = {
   nullable?: boolean;
   defaultValue?: ColumnTypeToValue[T];
   label?: string;
-  fieldType?: 'text' | 'password' | 'select' | 'date' | 'switch' | 'number';
+  fieldType?: 'text' | 'password' | 'select' | 'multiselect' | 'date' | 'switch' | 'number';
   options?: { value: string; label: string }[];
   group?: string;
   placeholder?: string;
@@ -46,10 +47,6 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
   onSubmit,
   isLoading = false,
 }: UniversalFormProps<T>) {
-  // Добавим отладочный вывод
-  console.log('Form defaultValues:', defaultValues);
-  console.log('Form columns:', columns);
-
   const {
     control,
     handleSubmit,
@@ -60,7 +57,20 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
   });
 
   const onSubmitHandler = handleSubmit((data) => {
-    onSubmit(data);
+    const processedValues = { ...data };
+
+    // Обработка значений для multiselect полей
+    Object.entries(columns).forEach(([key, column]) => {
+      if (column?.fieldType === 'multiselect' && Array.isArray(data[key])) {
+        // @ts-ignore
+        processedValues[key] = data[key].map(
+          (item: any) =>
+            column.options?.find((option) => option.value === item || option.label === item)?.value
+        );
+      }
+    });
+
+    onSubmit(processedValues);
   });
 
   return (
@@ -76,9 +86,6 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
               name={key as keyof FormValues<T>}
               control={control}
               render={({ field }) => {
-                // Добавим отладочный вывод для каждого поля
-                console.log(`Field ${key}:`, field.value);
-
                 switch (column.type) {
                   case 'TEXT':
                     if (column.fieldType === 'select' && column.options) {
@@ -88,6 +95,22 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                           data={column.options}
                           value={String(field.value || '')}
                           onChange={(newValue) => field.onChange(newValue || '')}
+                          clearable
+                          placeholder={column.placeholder}
+                        />
+                      );
+                    }
+                    if (column.fieldType === 'multiselect' && column.options) {
+                      const value = Array.isArray(field.value)
+                        ? field.value.map((item) => item?.name || item)
+                        : [];
+
+                      return (
+                        <MultiSelect
+                          label={column.label || key}
+                          data={column.options}
+                          value={value}
+                          onChange={(newValue) => field.onChange(newValue)}
                           clearable
                           placeholder={column.placeholder}
                         />
@@ -105,6 +128,33 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         label={column.label || key}
                         value={String(field.value || '')}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
+                        placeholder={column.placeholder}
+                      />
+                    );
+                  case 'UUID':
+                    if (column.fieldType === 'multiselect' && column.options) {
+                      const value = Array.isArray(field.value)
+                        ? field.value.map((item) => item?.name || item)
+                        : [];
+
+                      return (
+                        <MultiSelect
+                          label={column.label || key}
+                          data={column.options}
+                          value={value}
+                          onChange={(newValue) => field.onChange(newValue)}
+                          clearable
+                          placeholder={column.placeholder}
+                        />
+                      );
+                    }
+                    return (
+                      <Select
+                        label={column.label || key}
+                        data={column.options || []}
+                        value={String(field.value || '')}
+                        onChange={(newValue) => field.onChange(newValue || '')}
+                        clearable
                         placeholder={column.placeholder}
                       />
                     );
@@ -126,7 +176,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                     return (
                       <Switch
                         label={column.label || key}
-                        checked={Boolean(!!field.value)}
+                        checked={Boolean(field.value)}
                         onChange={(event) => field.onChange(event.currentTarget.checked)}
                       />
                     );
@@ -153,101 +203,6 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
               }}
             />
           ))}
-
-        {/* Позиции */}
-        {Object.entries(columns).some(([_, column]) => column.group === 'positions') && (
-          <>
-            <div>Должности:</div>
-            <Stack gap="xs">
-              {Object.entries(columns)
-                .filter(([_, column]) => column.group === 'positions')
-                .map(([key, column]) => (
-                  <Controller<FormValues<T>>
-                    key={key}
-                    // @ts-ignore
-                    name={key as keyof FormValues<T>}
-                    control={control}
-                    render={({ field }) => {
-                      // Добавим отладочный вывод для каждого поля
-                      console.log(`Field ${key}:`, field.value);
-
-                      switch (column.type) {
-                        case 'TEXT':
-                          if (column.fieldType === 'select' && column.options) {
-                            return (
-                              <Select
-                                label={column.label || key}
-                                data={column.options}
-                                value={String(field.value || '')}
-                                onChange={(newValue) => field.onChange(newValue || '')}
-                                clearable
-                                placeholder={column.placeholder}
-                              />
-                            );
-                          }
-                          return column.fieldType === 'password' ? (
-                            <PasswordInput
-                              label={column.label || key}
-                              value={String(field.value || '')}
-                              onChange={(e) => field.onChange(e.currentTarget.value)}
-                              placeholder={column.placeholder}
-                            />
-                          ) : (
-                            <TextInput
-                              label={column.label || key}
-                              value={String(field.value || '')}
-                              onChange={(e) => field.onChange(e.currentTarget.value)}
-                              placeholder={column.placeholder}
-                            />
-                          );
-                        case 'DATE':
-                          return (
-                            <DateInput
-                              {...field}
-                              label={column.label}
-                              value={field?.value ? new Date(field?.value as string) : null}
-                              onChange={(date) => {
-                                field.onChange(date);
-                              }}
-                              valueFormat="YYYY-MM-DD"
-                              clearable
-                              placeholder={column.placeholder}
-                            />
-                          );
-                        case 'BOOLEAN':
-                          return (
-                            <Switch
-                              label={column.label || key}
-                              checked={Boolean(field.value)}
-                              onChange={(event) => field.onChange(event.currentTarget.checked)}
-                            />
-                          );
-                        case 'INTEGER':
-                          return (
-                            <NumberInput
-                              {...field}
-                              label={column.label}
-                              value={Number(field.value || 0)}
-                              onChange={(value) => field.onChange(value)}
-                              placeholder={column.placeholder}
-                            />
-                          );
-                        default:
-                          return (
-                            <TextInput
-                              label={column.label || key}
-                              value={String(field.value || '')}
-                              onChange={(e) => field.onChange(e.currentTarget.value)}
-                              placeholder={column.placeholder}
-                            />
-                          );
-                      }
-                    }}
-                  />
-                ))}
-            </Stack>
-          </>
-        )}
 
         <Button type="submit" disabled={!isDirty} loading={isLoading}>
           Сохранить

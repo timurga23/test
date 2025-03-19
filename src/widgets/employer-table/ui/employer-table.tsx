@@ -59,8 +59,6 @@ export const EmployerTable = ({ employees, positions, employeePositions }: TProp
     return result;
   }, [employees, employeePositions, filters]);
 
-  console.log(112, filteredData);
-
   const normalizedData = useMemo(() => {
     return mapEmployeeToTable(filteredData, positions, employeePositions);
   }, [filteredData, positions, employeePositions]);

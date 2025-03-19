@@ -3,12 +3,16 @@ import { CrudTable } from '@/shared/ui';
 
 interface NormalizedClient extends Client {
   city: string;
+  services: Array<{
+    id_service: string;
+    name: string;
+  }>;
 }
 
 export const ClientTable = () => {
   const normalizeData = (
     clients: Client[],
-    relations: { client_citys: any[]; city: any[] }
+    relations: { client_citys: any[]; city: any[]; client_services: any[]; service: any[] }
   ): NormalizedClient[] => {
     return clients.map((client) => {
       const clientCity = relations.client_citys?.find(
@@ -16,9 +20,21 @@ export const ClientTable = () => {
       );
       const city = relations.city?.find((city) => city.id_city === clientCity?.id_city);
 
+      const clientServices =
+        relations.client_services?.filter((cs) => cs.id_client === client.id_client) || [];
+
+      const services = clientServices.map((cs) => {
+        const service = relations.service?.find((s) => s.id_service === cs.id_service);
+        return {
+          id_service: cs.id_service,
+          name: service?.name || '',
+        };
+      });
+
       return {
         ...client,
         city: city?.name || '',
+        services,
       };
     });
   };
@@ -41,6 +57,25 @@ export const ClientTable = () => {
         city: {
           tableName: 'city',
           valueField: 'id_city',
+          labelField: 'name',
+        },
+        // @ts-ignore
+        client_services: {
+          tableName: 'client_services',
+          valueField: 'id_service',
+          labelField: 'id_service',
+        },
+        // @ts-ignore
+        service: {
+          tableName: 'service',
+          valueField: 'id_service',
+          labelField: 'name',
+        },
+      }}
+      formRelations={{
+        services: {
+          tableName: 'service',
+          valueField: 'id_service',
           labelField: 'name',
         },
       }}
