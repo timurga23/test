@@ -7,12 +7,19 @@ interface NormalizedClient extends Client {
     id_service: string;
     name: string;
   }>;
+  dop_contacts: string[];
 }
 
 export const ClientTable = () => {
   const normalizeData = (
     clients: Client[],
-    relations: { client_citys: any[]; city: any[]; client_services: any[]; service: any[] }
+    relations: {
+      client_citys: any[];
+      city: any[];
+      client_services: any[];
+      service: any[];
+      dop_contacts_client: any[];
+    }
   ): NormalizedClient[] => {
     return clients.map((client) => {
       const clientCity = relations.client_citys?.find(
@@ -31,10 +38,17 @@ export const ClientTable = () => {
         };
       });
 
+      // Получаем дополнительные контакты
+      const dopContacts =
+        relations.dop_contacts_client
+          ?.filter((contact) => contact.id_client === client.id_client)
+          ?.map((contact) => contact.value) || [];
+
       return {
         ...client,
         city: city?.name || '',
         services,
+        dop_contacts: dopContacts, // добавляем контакты в нормализованные данные
       };
     });
   };
@@ -85,6 +99,12 @@ export const ClientTable = () => {
           tableName: 'service',
           valueField: 'id_service',
           labelField: 'name',
+        },
+        // @ts-ignore
+        dop_contacts_client: {
+          tableName: 'dop_contacts_client',
+          valueField: 'value',
+          labelField: 'value',
         },
       }}
       formRelations={{

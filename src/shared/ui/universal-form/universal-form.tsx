@@ -1,4 +1,5 @@
 import { ColumnTypeToValue } from '@/shared';
+import { DynamicInputs } from '@/shared/ui/dynamic-inputs/dynamic-inputs';
 import {
   Button,
   MultiSelect,
@@ -19,7 +20,15 @@ export type BaseColumn<T extends keyof ColumnTypeToValue> = {
   nullable?: boolean;
   defaultValue?: ColumnTypeToValue[T];
   label?: string;
-  fieldType?: 'text' | 'password' | 'select' | 'multiselect' | 'date' | 'switch' | 'number';
+  fieldType?:
+    | 'text'
+    | 'password'
+    | 'select'
+    | 'multiselect'
+    | 'date'
+    | 'switch'
+    | 'number'
+    | 'dynamic-inputs';
   options?: { value: string; label: string }[];
   group?: string;
   placeholder?: string;
@@ -168,6 +177,17 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                           onChange={(newValue) => field.onChange(newValue)}
                           clearable
                           placeholder={column.placeholder}
+                        />
+                      );
+                    }
+
+                    if (column?.fieldType === 'dynamic-inputs') {
+                      return (
+                        <DynamicInputs
+                          label={column.label}
+                          placeholder={column.placeholder}
+                          value={Array.isArray(field.value) ? field.value : []}
+                          onChange={(newValue) => field.onChange(newValue)}
                         />
                       );
                     }

@@ -99,4 +99,20 @@ export const CLIENT_FORM_COLUMNS = {
       },
     },
   },
+  dop_contacts: {
+    type: 'UUID',
+    nullable: true,
+    label: 'Дополнительные контакты',
+    fieldType: 'dynamic-inputs',
+    relation: {
+      table: 'dop_contacts_client',
+      value: 'value',
+      through: {
+        table: 'dop_contacts_client',
+        foreignKey: 'value',
+        relationKey: 'id_client',
+      },
+    },
+    defaultValue: [],
+  },
 };

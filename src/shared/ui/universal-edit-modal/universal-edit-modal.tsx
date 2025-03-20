@@ -126,7 +126,9 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
           // Пропускаем поля с through отношениями (и select, и multiselect)
           if (
-            (column?.fieldType === 'select' || column?.fieldType === 'multiselect') &&
+            (column?.fieldType === 'select' ||
+              column?.fieldType === 'multiselect' ||
+              column?.fieldType === 'dynamic-inputs') &&
             column?.relation?.through
           ) {
             return acc;
@@ -211,9 +213,12 @@ export const UniversalEditModal = <T extends Record<string, any>>({
         Array.isArray(value) &&
         value.length > 0 &&
         !value?.some((item: any) => !item);
+
       const isAddSelect = column?.fieldType === 'select' && value;
 
-      if (isAddSelect || isAddMultiselect) {
+      const isAddDynamicInputs = column?.fieldType === 'dynamic-inputs' && value;
+
+      if (isAddSelect || isAddMultiselect || isAddDynamicInputs) {
         // Сначала удаляем все существующие связи
         await deleteMutation({
           tableName: through.table,
@@ -247,6 +252,19 @@ export const UniversalEditModal = <T extends Record<string, any>>({
               ],
             },
           ],
+        });
+      } else if (isAddDynamicInputs) {
+        // Для dynamic-inputs добавляем все выбранные значения
+        await addMutation({
+          tableName: through.table,
+          // @ts-ignore
+          data: value.map((contactValue) => ({
+            row: [
+              { column: through.relationKey, value: recordId },
+              { column: 'value', value: contactValue },
+              { column: 'id_type_contact', value: '741d4b84-9cf5-4110-b137-4bcd3c8b40e0' }, // TODO: change to default value
+            ],
+          })),
         });
       }
     }
