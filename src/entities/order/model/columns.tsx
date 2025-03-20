@@ -3,28 +3,20 @@ import { NormalizedOrder } from './types';
 
 export const ORDER_COLUMNS: ITableColumn<NormalizedOrder>[] = [
   {
-    key: 'id_order',
-    label: 'ID',
-    sortable: true,
-    width: 'auto',
-    minWidth: 150,
-    render: (row) => row.id_order,
-  },
-  {
     key: 'date',
     label: 'Дата',
     sortable: true,
     width: 'auto',
     minWidth: 150,
-    render: (row) => row.date,
+    render: (row) => new Date(String(row.date)).toLocaleDateString(),
   },
   {
-    key: 'client',
+    key: 'client_name',
     label: 'Клиент',
     sortable: true,
     width: 'auto',
     minWidth: 150,
-    render: (row) => row.client,
+    render: (row) => row.client_name,
   },
   {
     key: 'position',
@@ -60,11 +52,11 @@ export const ORDER_COLUMNS: ITableColumn<NormalizedOrder>[] = [
     render: (row) => row.commission,
   },
   {
-    key: 'status',
+    key: 'status_name',
     label: 'Статус',
     sortable: true,
     width: 'auto',
-    minWidth: 150,
-    render: (row) => row.status,
+    minWidth: 120,
+    render: (row) => row.status_name,
   },
 ];

@@ -24,7 +24,10 @@ interface UniversalEditModalProps<T = any> {
       labelField: string;
     };
   };
+  modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 }
+
+const RELATION_FIELDS = ['positions', 'select', 'multiselect', 'dynamic-inputs'];
 
 export const UniversalEditModal = <T extends Record<string, any>>({
   opened,
@@ -35,6 +38,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   formColumns,
   idField,
   relations = {},
+  modalSize = 'lg',
 }: UniversalEditModalProps<T>) => {
   const { mutateAsync: addMutation } = useAddTableData();
   const { mutateAsync: updateMutation } = useUpdateTableData();
@@ -125,12 +129,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
           const column = formColumns[key];
 
           // Пропускаем поля с through отношениями (и select, и multiselect)
-          if (
-            (column?.fieldType === 'select' ||
-              column?.fieldType === 'multiselect' ||
-              column?.fieldType === 'dynamic-inputs') &&
-            column?.relation?.through
-          ) {
+          if (RELATION_FIELDS.includes(column?.fieldType) && column?.relation?.through) {
             return acc;
           }
 
@@ -208,64 +207,89 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
       const { through } = column.relation;
 
-      const isAddMultiselect =
-        column?.fieldType === 'multiselect' &&
-        Array.isArray(value) &&
-        value.length > 0 &&
-        !value?.some((item: any) => !item);
-
-      const isAddSelect = column?.fieldType === 'select' && value;
-
-      const isAddDynamicInputs = column?.fieldType === 'dynamic-inputs' && value;
-
-      if (isAddSelect || isAddMultiselect || isAddDynamicInputs) {
-        // Сначала удаляем все существующие связи
+      if (column.fieldType === 'positions') {
+        // Удаляем старые позиции
         await deleteMutation({
           tableName: through.table,
           data: [{ column: through.relationKey, value: recordId }],
         });
-      }
 
-      // Добавляем новые связи
-      if (isAddMultiselect) {
-        // Для multiselect добавляем все выбранные значения
-        await addMutation({
-          tableName: through.table,
-          // @ts-ignore
-          data: value.map((foreignId) => ({
-            row: [
-              { column: through.relationKey, value: recordId },
-              { column: through.foreignKey, value: foreignId },
-            ],
-          })),
-        });
-      } else if (isAddSelect) {
-        // Для select добавляем одно значение
-        await addMutation({
-          tableName: through.table,
-          data: [
-            {
-              // @ts-ignore
+        // Добавляем новые позиции
+        if (Array.isArray(value) && value.length > 0) {
+          await addMutation({
+            tableName: through.table,
+            // @ts-ignore
+            data: value.map((position) => ({
+              row: [
+                ...Object.entries(position).map(([column, value]) => ({
+                  column,
+                  value,
+                })),
+                { column: idField, value: recordId },
+              ],
+            })),
+          });
+        }
+      } else {
+        const isAddMultiselect =
+          column?.fieldType === 'multiselect' &&
+          Array.isArray(value) &&
+          value.length > 0 &&
+          !value?.some((item: any) => !item);
+
+        const isAddSelect = column?.fieldType === 'select' && value;
+
+        const isAddDynamicInputs = column?.fieldType === 'dynamic-inputs' && value;
+
+        if (isAddSelect || isAddMultiselect || isAddDynamicInputs) {
+          // Сначала удаляем все существующие связи
+          await deleteMutation({
+            tableName: through.table,
+            data: [{ column: through.relationKey, value: recordId }],
+          });
+        }
+
+        // Добавляем новые связи
+        if (isAddMultiselect) {
+          // Для multiselect добавляем все выбранные значения
+          await addMutation({
+            tableName: through.table,
+            // @ts-ignore
+            data: value.map((foreignId) => ({
               row: [
                 { column: through.relationKey, value: recordId },
-                { column: through.foreignKey, value: value },
+                { column: through.foreignKey, value: foreignId },
               ],
-            },
-          ],
-        });
-      } else if (isAddDynamicInputs) {
-        // Для dynamic-inputs добавляем все выбранные значения
-        await addMutation({
-          tableName: through.table,
-          // @ts-ignore
-          data: value.map((contactValue) => ({
-            row: [
-              { column: through.relationKey, value: recordId },
-              { column: 'value', value: contactValue },
-              { column: 'id_type_contact', value: '741d4b84-9cf5-4110-b137-4bcd3c8b40e0' }, // TODO: change to default value
+            })),
+          });
+        } else if (isAddSelect) {
+          // Для select добавляем одно значение
+          await addMutation({
+            tableName: through.table,
+            data: [
+              {
+                // @ts-ignore
+                row: [
+                  { column: through.relationKey, value: recordId },
+                  { column: through.foreignKey, value: value },
+                ],
+              },
             ],
-          })),
-        });
+          });
+        } else if (isAddDynamicInputs) {
+          // Для dynamic-inputs добавляем все выбранные значения
+          await addMutation({
+            tableName: through.table,
+            // @ts-ignore
+            data: value.map((contactValue) => ({
+              row: [
+                { column: through.relationKey, value: recordId },
+                { column: 'value', value: contactValue },
+                { column: 'id_type_contact', value: '741d4b84-9cf5-4110-b137-4bcd3c8b40e0' }, // TODO: change to default value
+              ],
+            })),
+          });
+        }
       }
     }
   };
@@ -275,7 +299,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
       opened={opened}
       onClose={onClose}
       title={!data ? 'Добавить запись' : 'Редактировать запись'}
-      size="lg"
+      size={modalSize}
     >
       <UniversalForm
         columns={updatedFormColumns}

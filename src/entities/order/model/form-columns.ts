@@ -1,69 +1,43 @@
-export const CLIENT_FORM_COLUMNS = {
-  name: {
-    type: 'TEXT',
+export const ORDER_FORM_COLUMNS = {
+  date: {
+    type: 'DATE',
     nullable: true,
-    label: 'Имя',
-    placeholder: 'Введите имя',
+    label: 'Дата',
   },
-  organization: {
-    type: 'TEXT',
+  id_status: {
+    type: 'UUID',
     nullable: true,
-    label: 'Организация',
-    placeholder: 'Введите название организации',
+    label: 'Статус',
+    fieldType: 'select',
+    relation: {
+      table: 'status',
+      value: 'id_status',
+      label: 'name',
+    },
   },
-  phone_number: {
-    type: 'TEXT',
-    nullable: true,
-    label: 'Телефон',
-    placeholder: 'Введите номер телефона',
+  id_client: {
+    type: 'UUID',
+    nullable: false,
+    label: 'Клиент',
+    fieldType: 'select',
+    relation: {
+      table: 'client',
+      value: 'id_client',
+      label: 'name',
+    },
   },
-  email: {
-    type: 'TEXT',
+  positions: {
+    type: 'UUID',
     nullable: true,
-    label: 'Email',
-    placeholder: 'Введите email',
-  },
-  address: {
-    type: 'TEXT',
-    nullable: true,
-    label: 'Адрес',
-    placeholder: 'Введите адрес',
-  },
-  passport: {
-    type: 'TEXT',
-    nullable: true,
-    label: 'Паспорт',
-    placeholder: 'Введите паспортные данные',
-  },
-  login: {
-    type: 'TEXT',
-    nullable: true,
-    label: 'Логин',
-    placeholder: 'Введите логин',
-  },
-  password: {
-    type: 'TEXT',
-    nullable: true,
-    label: 'Пароль',
-    placeholder: 'Введите пароль',
-  },
-  link_table: {
-    type: 'TEXT',
-    nullable: true,
-    label: 'Таблица',
-    placeholder: 'Введите ссылку',
-  },
-  bitrix: {
-    type: 'TEXT',
-    nullable: true,
-    label: 'Bitrix',
-    placeholder: 'Введите bitrix',
-  },
-  relevance: {
-    type: 'BOOLEAN',
-    nullable: true,
-    defaultValue: 'true',
-    label: 'Актуальность',
-    fieldType: 'switch',
+    label: 'Позиции заказа',
+    fieldType: 'positions',
+    relation: {
+      table: 'positions_order',
+      through: {
+        table: 'positions_order',
+        foreignKey: 'id_position',
+        relationKey: 'id_order',
+      },
+    },
   },
 };

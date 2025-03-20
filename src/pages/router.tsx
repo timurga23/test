@@ -6,6 +6,7 @@ import { ClientsPage } from './clients/ui/page';
 import { EmployersPage } from './employers';
 import { LoginPage } from './login';
 import { OperationCardsPage } from './operation-cards/ui/page';
+import { OrdersPage } from './order/ui/page';
 import { PositionsPage } from './positions/ui/page';
 import { RatePage } from './rate/ui/page';
 import { WelcomePage } from './welcome';
@@ -46,5 +47,9 @@ export const router = createBrowserRouter([
   {
     path: '/clients',
     element: <ClientsPage />,
+  },
+  {
+    path: '/orders',
+    element: <OrdersPage />,
   },
 ]);

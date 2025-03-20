@@ -1,5 +1,6 @@
 import { ColumnTypeToValue } from '@/shared';
 import { DynamicInputs } from '@/shared/ui/dynamic-inputs/dynamic-inputs';
+import { PositionsEditor } from '@/shared/ui/positions-editor/positions-editor';
 import {
   Button,
   MultiSelect,
@@ -28,7 +29,8 @@ export type BaseColumn<T extends keyof ColumnTypeToValue> = {
     | 'date'
     | 'switch'
     | 'number'
-    | 'dynamic-inputs';
+    | 'dynamic-inputs'
+    | 'positions';
   options?: { value: string; label: string }[];
   group?: string;
   placeholder?: string;
@@ -192,6 +194,18 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                       );
                     }
 
+                    if (column?.fieldType === 'positions') {
+                      return (
+                        <PositionsEditor
+                          // @ts-ignore
+                          value={field.value || []}
+                          onChange={(newValue) => field.onChange(newValue)}
+                          // @ts-ignore
+                          orderId={defaultValues?.id_order}
+                        />
+                      );
+                    }
+
                     const value =
                       column.options?.find(
                         (option) => option.label === field.value || option.value === field.value
@@ -239,6 +253,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         placeholder={column.placeholder}
                       />
                     );
+
                   default:
                     return (
                       <TextInput

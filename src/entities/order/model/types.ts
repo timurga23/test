@@ -51,4 +51,6 @@ export type NormalizedOrder = Pick<Order, 'id_order' | 'date' | 'rate' | 'commis
   position: string;
   amount: number;
   status: string;
+  client_name: string;
+  status_name: string;
 };

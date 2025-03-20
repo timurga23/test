@@ -31,6 +31,7 @@ interface CrudTableProps<T, N> {
   isSearchable?: boolean;
   searchableColumns?: string[]; // Колонки, по которым будет осуществляться поиск
   filters?: Filter[]; // Добавляем пропс для фильтров
+  modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 }
 
 export const CrudTable = <T extends { [key: string]: any }, N = T>({
@@ -46,6 +47,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   formRelations = {},
   searchableColumns = [], // По умолчанию пустой массив
   filters = [],
+  modalSize = 'lg',
 }: CrudTableProps<T, N>) => {
   const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -82,8 +84,6 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     isMainLoading ||
     relationsLoading.some((state: any) => state) ||
     formRelationsLoadingStates.some((state: any) => state);
-
-  console.log(112, isLoading);
 
   const normalizedData = normalizeData ? normalizeData(data || [], relationsData) : data || [];
 
@@ -280,7 +280,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
         <CustomEditModal {...modalProps} />
       ) : (
         // @ts-ignore
-        <UniversalEditModal {...modalProps} />
+        <UniversalEditModal {...modalProps} modalSize={modalSize} idField={idField} />
       )}
     </>
   );
