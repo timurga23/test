@@ -34,6 +34,7 @@ export type BaseColumn<T extends keyof ColumnTypeToValue> = {
   options?: { value: string; label: string }[];
   group?: string;
   placeholder?: string;
+  disabled?: boolean;
 };
 
 type InferColumnType<T extends BaseColumn<keyof ColumnTypeToValue>> =
@@ -118,6 +119,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                           onChange={(newValue) => field.onChange(newValue || '')}
                           clearable
                           placeholder={column.placeholder}
+                          disabled={column.disabled}
                         />
                       );
                     }
@@ -139,6 +141,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                           onChange={(newValue) => field.onChange(newValue)}
                           clearable
                           placeholder={column.placeholder}
+                          disabled={column.disabled}
                         />
                       );
                     }
@@ -148,6 +151,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         value={String(field.value || '')}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
                         placeholder={column.placeholder}
+                        disabled={column.disabled}
                       />
                     ) : (
                       <TextInput
@@ -155,6 +159,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         value={String(field.value || '')}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
                         placeholder={column.placeholder}
+                        disabled={column.disabled}
                       />
                     );
                   case 'UUID':
@@ -179,6 +184,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                           onChange={(newValue) => field.onChange(newValue)}
                           clearable
                           placeholder={column.placeholder}
+                          disabled={column.disabled}
                         />
                       );
                     }
@@ -219,6 +225,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         onChange={(newValue) => field.onChange(newValue || '')}
                         clearable
                         placeholder={column.placeholder}
+                        disabled={column.disabled}
                       />
                     );
                   case 'DATE':
@@ -233,6 +240,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         valueFormat="YYYY-MM-DD"
                         clearable
                         placeholder={column.placeholder}
+                        disabled={column.disabled}
                       />
                     );
                   case 'BOOLEAN':
@@ -241,6 +249,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         label={column.label || key}
                         checked={Boolean(field.value)}
                         onChange={(event) => field.onChange(event.currentTarget.checked)}
+                        disabled={column.disabled}
                       />
                     );
                   case 'INTEGER':
@@ -251,6 +260,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         value={Number(field.value || 0)}
                         onChange={(value) => field.onChange(value)}
                         placeholder={column.placeholder}
+                        disabled={column.disabled}
                       />
                     );
 
@@ -261,6 +271,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         value={String(field.value || '')}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
                         placeholder={column.placeholder}
+                        disabled={column.disabled}
                       />
                     );
                 }

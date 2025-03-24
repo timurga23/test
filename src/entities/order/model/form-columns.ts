@@ -3,6 +3,7 @@ export const ORDER_FORM_COLUMNS = {
     type: 'DATE',
     nullable: true,
     label: 'Дата',
+    disabled: true,
   },
   id_status: {
     type: 'UUID',
@@ -20,9 +21,22 @@ export const ORDER_FORM_COLUMNS = {
     nullable: false,
     label: 'Клиент',
     fieldType: 'select',
+    disabled: true,
     relation: {
       table: 'client',
       value: 'id_client',
+      label: 'name',
+    },
+  },
+  id_employee: {
+    type: 'UUID',
+    nullable: false,
+    label: 'Сотрудник',
+    fieldType: 'select',
+    disabled: true,
+    relation: {
+      table: 'employee',
+      value: 'id_employee',
       label: 'name',
     },
   },

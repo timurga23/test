@@ -27,11 +27,12 @@ export const OrderTable = () => {
         (position) => position.id_order === order.id_order
       );
 
+      // todo выяснить как считать сумму заказа у Эмиля
       return {
         ...order,
         client_name: client?.name || '',
         status_name: status?.name || '',
-        position: positions.length,
+        position: positions?.length,
         positions,
       };
     });
