@@ -1,0 +1,77 @@
+import { ITableColumn } from '@/shared';
+import { NormalizedTorg12 } from './types';
+
+export const TORG12_COLUMNS: ITableColumn<NormalizedTorg12>[] = [
+  {
+    key: 'date',
+    label: 'Дата',
+    sortable: true,
+    width: 'auto',
+    minWidth: 120,
+    render: (row) => (row.date ? new Date(row.date).toLocaleDateString() : ''),
+  },
+  {
+    key: 'client_name',
+    label: 'Клиент',
+    sortable: true,
+    width: 'auto',
+    minWidth: 200,
+    render: (row) => row.client_name,
+  },
+  {
+    key: 'cost',
+    label: 'Сумма',
+    sortable: true,
+    width: 'auto',
+    minWidth: 120,
+    render: (row) => row.cost,
+  },
+  {
+    key: 'income',
+    label: 'Приход',
+    sortable: true,
+    width: 'auto',
+    minWidth: 120,
+    render: (row) => row.income,
+  },
+  {
+    key: 'expense',
+    label: 'Расход',
+    sortable: true,
+    width: 'auto',
+    minWidth: 120,
+    render: (row) => row.expense,
+  },
+  {
+    key: 'profit',
+    label: 'Прибыль',
+    sortable: true,
+    width: 'auto',
+    minWidth: 120,
+    render: (row) => row.profit,
+  },
+  {
+    key: 'supplier_name',
+    label: 'Поставщик',
+    sortable: true,
+    width: 'auto',
+    minWidth: 200,
+    render: (row) => row.supplier_name,
+  },
+  {
+    key: 'status',
+    label: 'Статус',
+    sortable: true,
+    width: 'auto',
+    minWidth: 120,
+    render: (row) => row.status,
+  },
+  {
+    key: 'purpose',
+    label: 'Назначение',
+    sortable: true,
+    width: 'auto',
+    minWidth: 200,
+    render: (row) => row.purpose,
+  },
+];

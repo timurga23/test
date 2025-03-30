@@ -103,16 +103,20 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     }
 
     // Применяем фильтры
-    filters.forEach((filter) => {
-      switch (filter.type) {
-        case 'select':
-          if (filterValues[filter.field]) {
-            // @ts-ignore
-            result = result.filter((item) => {
-              // @ts-ignore
-              const fieldValue = item[filter.field];
+    // @ts-ignore
+    result = result.filter((item) => {
+      return filters.every((filter) => {
+        switch (filter.type) {
+          case 'select':
+            if (filterValues[filter.field]) {
+              const fieldValue = filter.valueField
+                ? // @ts-ignore
+                  item[filter.valueField] // используем valueField если указано
+                : // @ts-ignore
+                  item[filter.field]; // иначе используем field
 
-              // Если значение - массив объектов
+              console.log(112, 'fieldValue', fieldValue, filterValues[filter.field]);
+
               if (Array.isArray(fieldValue) && filter.searchField) {
                 return fieldValue.some(
                   // @ts-ignore
@@ -120,30 +124,31 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
                 );
               }
 
-              // Обычная фильтрация
               return fieldValue === filterValues[filter.field];
-            });
-          }
-          break;
-        case 'date-range':
-          const fromDate = filterValues[`${filter.field}_from`];
-          const toDate = filterValues[`${filter.field}_to`];
-          if (fromDate || toDate) {
-            // @ts-ignore
-            result = result.filter((item) => {
+            }
+            return true;
+
+          case 'date-range':
+            const fromDate = filterValues[`${filter.field}_from`];
+            const toDate = filterValues[`${filter.field}_to`];
+            if (fromDate || toDate) {
               // @ts-ignore
               const itemDate = new Date(item[filter.field]);
               if (fromDate && itemDate < fromDate) return false;
               if (toDate && itemDate > toDate) return false;
-              return true;
-            });
-          }
-          break;
-      }
+            }
+            return true;
+
+          default:
+            return true;
+        }
+      });
     });
 
     return result;
   }, [normalizedData, searchQuery, filterValues, filters, searchableColumns]);
+
+  console.log(112115, filteredData);
 
   // Получаем данные для текущей страницы
   const paginatedData = filteredData.slice(

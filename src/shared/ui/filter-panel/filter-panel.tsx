@@ -10,6 +10,7 @@ interface FilterPanelProps {
 }
 
 export const FilterPanel = ({ filters, values, onChange, onReset }: FilterPanelProps) => {
+  console.log(112, filters, 'option');
   return (
     <Stack>
       {filters.map((filter) => {

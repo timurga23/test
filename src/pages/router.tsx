@@ -12,6 +12,7 @@ import { OrdersPage } from './order/ui/page';
 import { PositionsPage } from './positions/ui/page';
 import { RatePage } from './rate/ui/page';
 import { WelcomePage } from './welcome';
+import { Torg12Page } from './torg12/ui/page';
 
 export const router = createBrowserRouter([
   {
@@ -61,5 +62,9 @@ export const router = createBrowserRouter([
   {
     path: '/buyouts',
     element: <BuyoutsPage />,
+  },
+  {
+    path: '/torg12s',
+    element: <Torg12Page />,
   },
 ]);

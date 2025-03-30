@@ -10,5 +10,6 @@ export * from './operation-card';
 export * from './order';
 export * from './position';
 export * from './rate/index';
+export * from './torg12';
 export * from './user';
 export * from './user-table';

@@ -10,3 +10,4 @@ export { NavbarSegmented } from './menu/ui/menu';
 export { OperationCardTable } from './operation-card-table/ui/operation-card-table';
 export { OrderTable } from './order-table/ui/order-table';
 export { PositionTable } from './position-table/ui/position-table';
+export { Torg12Table } from './torg-12-table/ui/torg-12-table';

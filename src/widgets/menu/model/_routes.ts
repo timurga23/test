@@ -9,6 +9,7 @@ import {
   ORDER_PAGE_TITLE,
   POSITION_PAGE_TITLE,
   RATE_PAGE_TITLE,
+  TORG12_PAGE_TITLE,
 } from '@/entities';
 import { IconBellRinging, IconDatabaseImport, IconReceipt2 } from '@tabler/icons-react';
 
@@ -25,6 +26,7 @@ export const tabs = {
     { link: '/orders', label: ORDER_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/cargos', label: CARGO_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/buyouts', label: BUYOUT_PAGE_TITLE, icon: IconReceipt2 },
+    { link: '/torg12s', label: TORG12_PAGE_TITLE, icon: IconReceipt2 },
   ],
   general: [{ link: '/partners', label: 'Партнеры', icon: IconDatabaseImport }],
 };
