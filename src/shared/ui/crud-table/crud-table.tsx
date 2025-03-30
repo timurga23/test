@@ -96,8 +96,8 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
       // @ts-ignore
       result = result.filter((item) => {
         return searchableColumns.some((column) => {
-          const value = String(item[column as keyof typeof item] || '').toLowerCase();
-          return value.includes(searchQuery.toLowerCase());
+          const value = String(item[column as keyof typeof item] || '')?.toLowerCase();
+          return value.includes(searchQuery?.toLowerCase());
         });
       });
     }

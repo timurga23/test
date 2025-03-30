@@ -73,7 +73,7 @@ function filterData<T>(data: T[], search: string) {
 
     return objectKeys.some((key) => {
       const value = (item as Record<string, any>)[key];
-      return value?.toString().toLowerCase().includes(query);
+      return value?.toString()?.toLowerCase().includes(query);
     });
   });
 }

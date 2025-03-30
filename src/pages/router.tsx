@@ -1,7 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
 
 import { BalancePage } from './balance/ui/page';
+import { BuyoutsPage } from './buyout/ui/page';
 import { CardsPage } from './cards/ui/page';
+import { CargosPage } from './cargo/ui/page';
 import { ClientsPage } from './clients/ui/page';
 import { EmployersPage } from './employers';
 import { LoginPage } from './login';
@@ -51,5 +53,13 @@ export const router = createBrowserRouter([
   {
     path: '/orders',
     element: <OrdersPage />,
+  },
+  {
+    path: '/cargos',
+    element: <CargosPage />,
+  },
+  {
+    path: '/buyouts',
+    element: <BuyoutsPage />,
   },
 ]);

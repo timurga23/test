@@ -97,4 +97,9 @@ export const CARGO_FORM_COLUMNS = {
       label: 'name',
     },
   },
+  delivery: {
+    type: 'CUSTOM',
+    fieldType: 'delivery-block',
+    label: '',
+  },
 };

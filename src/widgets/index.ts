@@ -1,9 +1,12 @@
 export { AuthGuard } from './authGuard/ui/authGuard';
+export { BuyoutTable } from './buyout-table/ui/buyout-table';
 export { CardTable } from './card-table/ui/card-table';
+export { CargoTable } from './cargo-table/ui/cargo-table';
+export { ClientTable } from './client-table/ui/client-table';
+export { DeliveryBlock } from './delivery-block/ui/delivery-block';
 export { EmployerTable } from './employer-table/ui/employer-table';
 export { LoginModal } from './loginModal/ui/loginModal';
 export { NavbarSegmented } from './menu/ui/menu';
 export { OperationCardTable } from './operation-card-table/ui/operation-card-table';
-export { PositionTable } from './position-table/ui/position-table';
-export { ClientTable } from './client-table/ui/client-table';
 export { OrderTable } from './order-table/ui/order-table';
+export { PositionTable } from './position-table/ui/position-table';

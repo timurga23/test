@@ -5,7 +5,7 @@ import {
   useUpdateTableData,
 } from '@/entities/user-table';
 import { formatDateForServer, UniversalForm } from '@/shared';
-import { Modal } from '@mantine/core';
+import { Grid, Modal } from '@mantine/core';
 import { useMemo } from 'react';
 import { toast } from 'react-toastify';
 
@@ -76,6 +76,8 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   const updatedFormColumns = useMemo(() => {
     const newFormColumns = { ...formColumns };
 
+    console.log(112, newFormColumns);
+
     for (const fieldName in newFormColumns) {
       const column = newFormColumns[fieldName];
 
@@ -133,15 +135,28 @@ export const UniversalEditModal = <T extends Record<string, any>>({
             return acc;
           }
 
-          if (key.toLowerCase().includes('date')) {
+          if (key === 'delivery') {
+            // Если это delivery, добавляем все его поля как отдельные
+            Object.entries(value).forEach(([deliveryKey, deliveryValue]) => {
+              // Пропускаем поля, которые уже есть в основной форме
+              if (!values[deliveryKey]) {
+                console.log(112, 115);
+                acc[deliveryKey] = deliveryValue;
+              }
+            });
+          }
+
+          if (key?.toLowerCase().includes('date')) {
             acc[key] = formatDateForServer(value);
-          } else {
+          } else if (key !== 'delivery') {
             acc[key] = value;
           }
           return acc;
         },
         {} as Record<string, any>
       );
+
+      console.log(112, 'formattedValues', formattedValues);
 
       if (!data) {
         // Добавление новой записи
@@ -301,11 +316,28 @@ export const UniversalEditModal = <T extends Record<string, any>>({
       title={!data ? 'Добавить запись' : 'Редактировать запись'}
       size={modalSize}
     >
-      <UniversalForm
-        columns={updatedFormColumns}
-        defaultValues={data || {}}
-        onSubmit={handleSubmit}
-      />
+      <Grid>
+        <Grid.Col span={updatedFormColumns.delivery ? 6 : 12}>
+          {/* Основные поля формы */}
+          <UniversalForm
+            columns={Object.entries(updatedFormColumns)
+              .filter(([key]) => key !== 'delivery')
+              .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})}
+            defaultValues={data || {}}
+            onSubmit={handleSubmit}
+          />
+        </Grid.Col>
+        {updatedFormColumns.delivery && (
+          <Grid.Col span={6}>
+            {/* Блок доставки */}
+            <UniversalForm
+              columns={{ delivery: updatedFormColumns.delivery }}
+              defaultValues={data || {}}
+              onSubmit={handleSubmit}
+            />
+          </Grid.Col>
+        )}
+      </Grid>
     </Modal>
   );
 };

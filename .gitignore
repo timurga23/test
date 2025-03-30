@@ -2,3 +2,4 @@ node_modules
 .env
 .vite/
 node_modules/.cache/
+.cursor

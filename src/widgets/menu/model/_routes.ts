@@ -1,6 +1,8 @@
 import {
   BALANCE_PAGE_TITLE,
+  BUYOUT_PAGE_TITLE,
   CARD_PAGE_TITLE,
+  CARGO_PAGE_TITLE,
   CLIENT_PAGE_TITLE,
   EMPLOYEE_PAGE_TITLE,
   OPERATION_CARD_PAGE_TITLE,
@@ -21,6 +23,8 @@ export const tabs = {
     { link: '/operation-cards', label: OPERATION_CARD_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/clients', label: CLIENT_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/orders', label: ORDER_PAGE_TITLE, icon: IconReceipt2 },
+    { link: '/cargos', label: CARGO_PAGE_TITLE, icon: IconReceipt2 },
+    { link: '/buyouts', label: BUYOUT_PAGE_TITLE, icon: IconReceipt2 },
   ],
   general: [{ link: '/partners', label: 'Партнеры', icon: IconDatabaseImport }],
 };

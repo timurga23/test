@@ -1,6 +1,7 @@
-import { ColumnTypeToValue } from '@/shared';
+import { ColumnType, ColumnTypeToValue } from '@/shared';
 import { DynamicInputs } from '@/shared/ui/dynamic-inputs/dynamic-inputs';
 import { PositionsEditor } from '@/shared/ui/positions-editor/positions-editor';
+import { DeliveryBlock } from '@/widgets';
 import {
   Button,
   MultiSelect,
@@ -14,23 +15,26 @@ import {
 import { DateInput } from '@mantine/dates';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 
-// Описание структуры колонки
+type FieldType =
+  | 'text'
+  | 'password'
+  | 'select'
+  | 'multiselect'
+  | 'date'
+  | 'switch'
+  | 'number'
+  | 'dynamic-inputs'
+  | 'positions'
+  | 'delivery-block'
+  | 'CUSTOM';
+
 export type BaseColumn<T extends keyof ColumnTypeToValue> = {
   type: T;
   unique?: boolean;
   nullable?: boolean;
   defaultValue?: ColumnTypeToValue[T];
   label?: string;
-  fieldType?:
-    | 'text'
-    | 'password'
-    | 'select'
-    | 'multiselect'
-    | 'date'
-    | 'switch'
-    | 'number'
-    | 'dynamic-inputs'
-    | 'positions';
+  fieldType?: FieldType;
   options?: { value: string; label: string }[];
   group?: string;
   placeholder?: string;
@@ -68,6 +72,8 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
     defaultValues,
   });
 
+  console.log(112, columns);
+
   const onSubmitHandler = handleSubmit((data) => {
     const processedValues = { ...data };
 
@@ -92,12 +98,14 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
     onSubmit(processedValues);
   });
 
+  console.log(112, columns);
+
   return (
     <form onSubmit={onSubmitHandler}>
       <Stack gap="md">
         {/* Основные поля */}
         {Object.entries(columns)
-          .filter(([_, column]) => !column.group)
+          .filter(([_, column]) => !column?.group)
           .map(([key, column]) => (
             <Controller<FormValues<T>>
               key={key}
@@ -105,7 +113,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
               name={key as keyof FormValues<T>}
               control={control}
               render={({ field }) => {
-                switch (column.type) {
+                switch (column.type as ColumnType | FieldType) {
                   case 'TEXT':
                     if (column?.fieldType === 'select' && column.options) {
                       const value =
@@ -219,13 +227,13 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
 
                     return (
                       <Select
-                        label={column.label || key}
-                        data={column.options || []}
+                        label={column?.label || key}
+                        data={column?.options || []}
                         value={value}
                         onChange={(newValue) => field.onChange(newValue || '')}
                         clearable
-                        placeholder={column.placeholder}
-                        disabled={column.disabled}
+                        placeholder={column?.placeholder}
+                        disabled={column?.disabled}
                       />
                     );
                   case 'DATE':
@@ -263,6 +271,9 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         disabled={column.disabled}
                       />
                     );
+                  case 'CUSTOM':
+                    // @ts-ignore
+                    return <DeliveryBlock value={defaultValues} onChange={field.onChange} />;
 
                   default:
                     return (

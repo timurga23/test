@@ -196,4 +196,5 @@ export interface NormalizedCargo extends Cargo {
   operation_card_number?: string;
   operation_safe_number?: string;
   card_number?: string;
+  delta?: number;
 }
