@@ -4,6 +4,7 @@ export * from './byuout';
 export * from './card/index';
 export * from './cargo';
 export * from './client';
+export * from './correction';
 export * from './employee';
 export * from './employee-positions';
 export * from './operation-card';

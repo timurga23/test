@@ -5,6 +5,7 @@ import {
   ActionIcon,
   Button,
   Drawer,
+  Flex,
   Group,
   Pagination,
   SegmentedControl,
@@ -149,6 +150,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     // @ts-ignore
     const quickFilter = preparedQuickFilters.find((f) => f.field === field && f.value === value);
     if (quickFilter) {
+      // @ts-ignore
       setActiveQuickFilter(quickFilter?.id);
     } else if (value === null) {
       setActiveQuickFilter('all');
@@ -270,7 +272,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
 
   return (
     <>
-      <Group mb="md" justify="space-between">
+      <Flex mb="md" gap={16} direction="column">
         <Group>
           <TextInput
             placeholder="Поиск..."
@@ -293,19 +295,20 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
               <IconPlus size={20} />
             </ActionIcon>
           )}
-          {preparedQuickFilters && preparedQuickFilters.length > 0 && (
-            <SegmentedControl
-              value={activeQuickFilter}
-              onChange={handleQuickFilterChange}
-              // @ts-ignore
-              data={preparedQuickFilters.map((filter) => ({
-                value: filter?.id,
-                label: filter?.label,
-              }))}
-            />
-          )}
         </Group>
-      </Group>
+        {preparedQuickFilters && preparedQuickFilters.length > 0 && (
+          <SegmentedControl
+            value={activeQuickFilter}
+            onChange={handleQuickFilterChange}
+            // @ts-ignore
+            data={preparedQuickFilters.map((filter) => ({
+              // @ts-ignore
+              value: filter?.id,
+              label: filter?.label,
+            }))}
+          />
+        )}
+      </Flex>
 
       <TableSort
         isLoading={isLoading}

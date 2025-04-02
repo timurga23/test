@@ -13,6 +13,7 @@ import { PositionsPage } from './positions/ui/page';
 import { RatePage } from './rate/ui/page';
 import { WelcomePage } from './welcome';
 import { Torg12Page } from './torg12/ui/page';
+import { CorrectionPage } from './correction/ui/page';
 
 export const router = createBrowserRouter([
   {
@@ -66,5 +67,9 @@ export const router = createBrowserRouter([
   {
     path: '/torg12s',
     element: <Torg12Page />,
+  },
+  {
+    path: '/corrections',
+    element: <CorrectionPage />,
   },
 ]);
