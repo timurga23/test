@@ -28,18 +28,27 @@ export const TORG12_FILTERS: Filter[] = [
       })) || [],
   },
   // todo
-  // {
-  //   type: 'select',
-  //   field: 'purpose',
-  //   label: 'Назначение',
-  //   relationKey: 'card',
-  //   searchField: 'purpose',
-  //   getOptions: (data) =>
-  //     data?.map((item: any) => ({
-  //       value: item.purpose,
-  //       label: item.purpose,
-  //     })) || [],
-  // },
+  {
+    type: 'select',
+    field: 'purpose',
+    label: 'Назначение',
+    relationKey: ['card', 'balance'],
+    searchField: 'purpose',
+    getOptions: (data) => {
+      return [
+        // @ts-ignore
+        ...(data?.card || []).map((item: any) => ({
+          value: `Карта: ${item.name}`,
+          label: `Карта: ${item.name}`,
+        })),
+        // @ts-ignore
+        ...(data?.balance || []).map((item: any) => ({
+          value: `Баланс: ${item.name}`,
+          label: `Баланс: ${item.name}`,
+        })),
+      ];
+    },
+  },
   {
     type: 'date-range',
     field: 'date',

@@ -6,6 +6,7 @@ import {
   TORG12_FORM_COLUMNS,
   TORG12_TABLE_NAME,
 } from '@/entities';
+import { createTorg12QuickFilters } from '@/entities/torg12/model/quick-filters';
 import { CrudTable } from '@/shared/ui';
 import { TORG12_TABLE_FORM_RELATIONS, TORG12_TABLE_RELATIONS } from '../_constant';
 
@@ -25,7 +26,12 @@ export const Torg12Table = () => {
         (balance) => balance.id_balance === torg12.id_balance_supplier
       );
       const card = relations.card?.find((card) => card.id_card === torg12.id_card);
+      const balance = relations.balance?.find(
+        (balance) => balance.id_balance === torg12.id_balance
+      );
       const status = relations.status?.find((status) => status.id_status === torg12.status);
+
+      const purpose = balance ? `Баланс: ${balance.name}` : card ? `Карта: ${card.purpose}` : '';
 
       return {
         ...torg12,
@@ -37,7 +43,7 @@ export const Torg12Table = () => {
         profit: torg12.profit || 0,
         supplier_name: supplier?.name || '',
         status: status?.name || '',
-        purpose: card?.purpose || '',
+        purpose,
       };
     });
   };
@@ -55,6 +61,14 @@ export const Torg12Table = () => {
       modalSize="xl"
       searchableColumns={['client_name', 'supplier_name']}
       filters={TORG12_FILTERS}
+      // @ts-ignore
+      quickFilters={createTorg12QuickFilters}
+      quickFilterRelation={{
+        tableName: 'status',
+        // @ts-ignore
+        valueField: 'id_status',
+        labelField: 'name',
+      }}
     />
   );
 };

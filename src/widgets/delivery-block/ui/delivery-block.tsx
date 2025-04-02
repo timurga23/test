@@ -41,9 +41,6 @@ export const DeliveryBlock = ({ value, onChange }: DeliveryBlockProps) => {
     (value.loading_out || 0);
 
   const delta = totalOut - totalIn;
-
-  console.log(112, 'value', value);
-
   return (
     <Card shadow="sm" p="md">
       <Text size="lg" fw={500} mb="md">

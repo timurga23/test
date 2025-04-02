@@ -8,7 +8,7 @@ export interface BaseFilter {
 
 export interface SelectFilter extends BaseFilter {
   type: 'select';
-  relationKey: string;
+  relationKey: string | string[];
   getOptions: (data: any[]) => { value: string; label: string }[];
   searchField?: string;
   valueField?: string;
@@ -19,3 +19,14 @@ export interface DateRangeFilter extends BaseFilter {
 }
 
 export type Filter = SelectFilter | DateRangeFilter;
+
+export interface QuickFilter {
+  id: string;
+  label: string;
+  field: string;
+  value: string | null;
+  color?: string; // для возможности кастомизации цвета кнопки
+}
+
+// Также добавим тип для функции создания фильтров
+export type QuickFilterCreator = (relationData: any[]) => QuickFilter[];

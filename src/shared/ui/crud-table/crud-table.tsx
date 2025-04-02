@@ -1,7 +1,15 @@
 import { useTableData } from '@/entities/user-table';
 import { UniversalEditModal } from '@/shared/ui';
 import { TableSort } from '@/shared/ui/table/table';
-import { ActionIcon, Button, Drawer, Group, Pagination, TextInput } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Drawer,
+  Group,
+  Pagination,
+  SegmentedControl,
+  TextInput,
+} from '@mantine/core';
 import { IconFilter, IconPlus, IconSearch } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -32,6 +40,10 @@ interface CrudTableProps<T, N> {
   searchableColumns?: string[]; // Колонки, по которым будет осуществляться поиск
   filters?: Filter[]; // Добавляем пропс для фильтров
   modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+  quickFilters?: (data: any[]) => Filter[];
+  quickFilterRelation?: {
+    tableName: string;
+  };
 }
 
 export const CrudTable = <T extends { [key: string]: any }, N = T>({
@@ -48,6 +60,8 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   searchableColumns = [], // По умолчанию пустой массив
   filters = [],
   modalSize = 'lg',
+  quickFilters,
+  quickFilterRelation,
 }: CrudTableProps<T, N>) => {
   const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -55,6 +69,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   const [filterValues, setFilterValues] = useState<Record<string, any>>({});
   const [activePage, setActivePage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeQuickFilter, setActiveQuickFilter] = useState<string>('all');
 
   const queryClient = useQueryClient();
 
@@ -87,6 +102,59 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
 
   const normalizedData = normalizeData ? normalizeData(data || [], relationsData) : data || [];
 
+  // Получаем данные для быстрых фильтров
+  const { data: quickFilterData } = useTableData(quickFilterRelation?.tableName || '');
+
+  // Создаем быстрые фильтры
+  const preparedQuickFilters = useMemo(() => {
+    if (quickFilters && typeof quickFilters === 'function' && quickFilterData) {
+      return quickFilters(quickFilterData);
+    }
+  }, [quickFilters, quickFilterData]);
+
+  // Обработчик быстрых фильтров
+  const handleQuickFilterChange = (filterId: string) => {
+    // @ts-ignore
+    const filter = preparedQuickFilters.find((f) => f.id === filterId);
+    setActiveQuickFilter(filterId);
+
+    if (filter && filter.label !== 'Все') {
+      // Обновляем общий state фильтров
+      setFilterValues((prev) => ({
+        ...prev,
+        [filter.field]: filter?.label,
+      }));
+    } else if (filterId === 'all') {
+      // Если выбран "Все", очищаем соответствующий фильтр
+      // @ts-ignore
+      const firstFilter = preparedQuickFilters[0];
+      if (firstFilter) {
+        setFilterValues((prev) => ({
+          ...prev,
+          [firstFilter.field]: null,
+        }));
+      }
+    }
+  };
+
+  // Обработчик обычных фильтров
+  const handleFilterChange = (field: string, value: any) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    // Если изменяется поле, которое связано с быстрым фильтром,
+    // обновляем активный быстрый фильтр
+    // @ts-ignore
+    const quickFilter = preparedQuickFilters.find((f) => f.field === field && f.value === value);
+    if (quickFilter) {
+      setActiveQuickFilter(quickFilter?.id);
+    } else if (value === null) {
+      setActiveQuickFilter('all');
+    }
+  };
+
   // Применяем фильтры к данным
   const filteredData = useMemo(() => {
     let result = normalizedData;
@@ -96,59 +164,27 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
       // @ts-ignore
       result = result.filter((item) => {
         return searchableColumns.some((column) => {
-          const value = String(item[column as keyof typeof item] || '')?.toLowerCase();
-          return value.includes(searchQuery?.toLowerCase());
+          // @ts-ignore
+          const value = String(item[column] || '').toLowerCase();
+          return value.includes(searchQuery.toLowerCase());
         });
       });
     }
 
-    // Применяем фильтры
-    // @ts-ignore
-    result = result.filter((item) => {
-      return filters.every((filter) => {
-        switch (filter.type) {
-          case 'select':
-            if (filterValues[filter.field]) {
-              const fieldValue = filter.valueField
-                ? // @ts-ignore
-                  item[filter.valueField] // используем valueField если указано
-                : // @ts-ignore
-                  item[filter.field]; // иначе используем field
-
-              console.log(112, 'fieldValue', fieldValue, filterValues[filter.field]);
-
-              if (Array.isArray(fieldValue) && filter.searchField) {
-                return fieldValue.some(
-                  // @ts-ignore
-                  (obj) => obj[filter.searchField] === filterValues[filter.field]
-                );
-              }
-
-              return fieldValue === filterValues[filter.field];
-            }
-            return true;
-
-          case 'date-range':
-            const fromDate = filterValues[`${filter.field}_from`];
-            const toDate = filterValues[`${filter.field}_to`];
-            if (fromDate || toDate) {
-              // @ts-ignore
-              const itemDate = new Date(item[filter.field]);
-              if (fromDate && itemDate < fromDate) return false;
-              if (toDate && itemDate > toDate) return false;
-            }
-            return true;
-
-          default:
-            return true;
-        }
-      });
+    // Применяем все фильтры (включая быстрые)
+    Object.entries(filterValues).forEach(([field, value]) => {
+      if (value !== null) {
+        // @ts-ignore
+        result = result.filter((item) => {
+          // @ts-ignore
+          const fieldValue = item[field];
+          return fieldValue === value;
+        });
+      }
     });
 
     return result;
-  }, [normalizedData, searchQuery, filterValues, filters, searchableColumns]);
-
-  console.log(112115, filteredData);
+  }, [normalizedData, searchQuery, filterValues, searchableColumns]);
 
   // Получаем данные для текущей страницы
   const paginatedData = filteredData.slice(
@@ -169,14 +205,6 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     setModalOpened(true);
   };
 
-  const handleFilterChange = (field: string, value: any) => {
-    setFilterValues((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    setActivePage(1); // Сбрасываем страницу при изменении фильтров
-  };
-
   const handleFilterReset = () => {
     setFilterValues({});
     setActivePage(1);
@@ -186,12 +214,29 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   const preparedFilters = useMemo(() => {
     return filters.map((filter) => {
       if (filter.type === 'select' && filter.relationKey) {
-        // @ts-ignore
-        const relationData = relationsData[filter.relationKey] || [];
-        return {
-          ...filter,
-          options: filter.getOptions(relationData),
-        };
+        if (Array.isArray(filter.relationKey)) {
+          // Если relationKey это массив, собираем данные из всех таблиц
+          const combinedData = filter.relationKey.reduce(
+            (acc, tableName) => ({
+              ...acc,
+              [tableName]: relationsData[tableName] || [],
+            }),
+            {}
+          );
+
+          return {
+            ...filter,
+            // @ts-ignore
+            options: filter.getOptions(combinedData),
+          };
+        } else {
+          // Старая логика для одиночной таблицы
+          const relationData = relationsData[filter.relationKey] || [];
+          return {
+            ...filter,
+            options: filter.getOptions(relationData),
+          };
+        }
       }
       return filter;
     });
@@ -243,12 +288,23 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
               Фильтры
             </Button>
           )}
+          {showAddButton && (
+            <ActionIcon variant="filled" color="blue" onClick={handleAdd} size="lg">
+              <IconPlus size={20} />
+            </ActionIcon>
+          )}
+          {preparedQuickFilters && preparedQuickFilters.length > 0 && (
+            <SegmentedControl
+              value={activeQuickFilter}
+              onChange={handleQuickFilterChange}
+              // @ts-ignore
+              data={preparedQuickFilters.map((filter) => ({
+                value: filter?.id,
+                label: filter?.label,
+              }))}
+            />
+          )}
         </Group>
-        {showAddButton && (
-          <ActionIcon variant="filled" color="blue" onClick={handleAdd} size="lg">
-            <IconPlus size={20} />
-          </ActionIcon>
-        )}
       </Group>
 
       <TableSort

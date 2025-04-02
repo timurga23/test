@@ -76,8 +76,6 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   const updatedFormColumns = useMemo(() => {
     const newFormColumns = { ...formColumns };
 
-    console.log(112, newFormColumns);
-
     for (const fieldName in newFormColumns) {
       const column = newFormColumns[fieldName];
 
@@ -140,7 +138,6 @@ export const UniversalEditModal = <T extends Record<string, any>>({
             Object.entries(value).forEach(([deliveryKey, deliveryValue]) => {
               // Пропускаем поля, которые уже есть в основной форме
               if (!values[deliveryKey]) {
-                console.log(112, 115);
                 acc[deliveryKey] = deliveryValue;
               }
             });
@@ -155,8 +152,6 @@ export const UniversalEditModal = <T extends Record<string, any>>({
         },
         {} as Record<string, any>
       );
-
-      console.log(112, 'formattedValues', formattedValues);
 
       if (!data) {
         // Добавление новой записи

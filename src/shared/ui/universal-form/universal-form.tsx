@@ -72,8 +72,6 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
     defaultValues,
   });
 
-  console.log(112, columns);
-
   const onSubmitHandler = handleSubmit((data) => {
     const processedValues = { ...data };
 
@@ -97,8 +95,6 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
 
     onSubmit(processedValues);
   });
-
-  console.log(112, columns);
 
   return (
     <form onSubmit={onSubmitHandler}>
