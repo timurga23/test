@@ -7,6 +7,7 @@ import {
   CORRECTION_PAGE_TITLE,
   EMPLOYEE_PAGE_TITLE,
   OPERATION_CARD_PAGE_TITLE,
+  OPERATION_SAFE_PAGE_TITLE,
   ORDER_PAGE_TITLE,
   POSITION_PAGE_TITLE,
   RATE_PAGE_TITLE,
@@ -29,6 +30,7 @@ export const tabs = {
     { link: '/buyouts', label: BUYOUT_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/torg12s', label: TORG12_PAGE_TITLE, icon: IconReceipt2 },
     { link: '/corrections', label: CORRECTION_PAGE_TITLE, icon: IconReceipt2 },
+    { link: '/operation-safes', label: OPERATION_SAFE_PAGE_TITLE, icon: IconReceipt2 },
   ],
   general: [{ link: '/partners', label: 'Партнеры', icon: IconDatabaseImport }],
 };

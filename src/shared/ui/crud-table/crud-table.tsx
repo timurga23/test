@@ -119,6 +119,8 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     const filter = preparedQuickFilters.find((f) => f.id === filterId);
     setActiveQuickFilter(filterId);
 
+    console.log(filter);
+
     if (filter && filter.label !== 'Все') {
       // Обновляем общий state фильтров
       setFilterValues((prev) => ({

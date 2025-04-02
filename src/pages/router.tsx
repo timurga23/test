@@ -5,15 +5,16 @@ import { BuyoutsPage } from './buyout/ui/page';
 import { CardsPage } from './cards/ui/page';
 import { CargosPage } from './cargo/ui/page';
 import { ClientsPage } from './clients/ui/page';
+import { CorrectionPage } from './correction/ui/page';
 import { EmployersPage } from './employers';
 import { LoginPage } from './login';
 import { OperationCardsPage } from './operation-cards/ui/page';
 import { OrdersPage } from './order/ui/page';
 import { PositionsPage } from './positions/ui/page';
 import { RatePage } from './rate/ui/page';
-import { WelcomePage } from './welcome';
 import { Torg12Page } from './torg12/ui/page';
-import { CorrectionPage } from './correction/ui/page';
+import { WelcomePage } from './welcome';
+import { OperationSafePage } from './operation-safe/page';
 
 export const router = createBrowserRouter([
   {
@@ -71,5 +72,9 @@ export const router = createBrowserRouter([
   {
     path: '/corrections',
     element: <CorrectionPage />,
+  },
+  {
+    path: '/operation-safes',
+    element: <OperationSafePage />,
   },
 ]);

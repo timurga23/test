@@ -8,6 +8,7 @@ export * from './correction';
 export * from './employee';
 export * from './employee-positions';
 export * from './operation-card';
+export * from './operation_safe';
 export * from './order';
 export * from './position';
 export * from './rate/index';

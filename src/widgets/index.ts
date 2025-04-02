@@ -8,6 +8,7 @@ export { EmployerTable } from './employer-table/ui/employer-table';
 export { LoginModal } from './loginModal/ui/loginModal';
 export { NavbarSegmented } from './menu/ui/menu';
 export { OperationCardTable } from './operation-card-table/ui/operation-card-table';
+export { OperationSafeTable } from './operation-safe-table/ui/operation-safe-table';
 export { OrderTable } from './order-table/ui/order-table';
 export { PositionTable } from './position-table/ui/position-table';
 export { Torg12Table } from './torg-12-table/ui/torg-12-table';
