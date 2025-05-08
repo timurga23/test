@@ -16,24 +16,40 @@ export const OrderTable = () => {
       positions_order: any[];
     }
   ): NormalizedOrder[] => {
-    //@ts-ignore
+    // @ts-ignore
     return orders.map((order) => {
       const client = relations.client?.find((client) => client.id_client === order.id_client);
-
       const status = relations.status?.find((status) => status.id_status === order.id_status);
 
-      // Подсчитываем количество позиций для заказа
+      // Фильтруем позиции заказа
       const positions = relations.positions_order?.filter(
         (position) => position.id_order === order.id_order
       );
 
-      // todo выяснить как считать сумму заказа у Эмиля
+      // Рассчитываем сумму заказа (amount)
+      let amount = 0;
+      if (positions && positions.length > 0) {
+        amount = positions.reduce((sum, position) => {
+          // Стоимость позиции: (price / 10^point_price) * quantity
+          const positionCost =
+            (position.price / Math.pow(10, position.point_price || 0)) * position.quantity;
+
+          // Стоимость доставки: cargo / 10^point_cargo (если есть)
+          const cargoCost = position.cargo
+            ? position.cargo / Math.pow(10, position.point_cargo || 0)
+            : 0;
+
+          return sum + positionCost + cargoCost;
+        }, 0);
+      }
+
       return {
         ...order,
         client_name: client?.name || '',
         status_name: status?.name || '',
-        position: positions?.length,
+        position: positions?.length || 0, // Количество позиций
         positions,
+        amount, // Сумма заказа
       };
     });
   };

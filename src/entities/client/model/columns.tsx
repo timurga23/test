@@ -3,12 +3,12 @@ import { NormalizedClient } from './types';
 
 export const CLIENT_COLUMNS: ITableColumn<NormalizedClient>[] = [
   {
-    key: 'id_client',
-    label: 'ID',
+    key: 'numb_client',
+    label: '#',
     sortable: true,
-    width: 'auto',
-    minWidth: 150,
-    render: (row) => row.id_client,
+    width: 'max-content',
+    minWidth: 10,
+    render: (row) => row.numb_client,
   },
   {
     key: 'name',

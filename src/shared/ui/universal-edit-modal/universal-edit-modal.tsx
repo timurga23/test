@@ -5,6 +5,7 @@ import {
   useUpdateTableData,
 } from '@/entities/user-table';
 import { formatDateForServer, UniversalForm } from '@/shared';
+import { DeliveryBlock } from '@/widgets';
 import { Grid, Modal } from '@mantine/core';
 import { useMemo } from 'react';
 import { toast } from 'react-toastify';
@@ -304,6 +305,26 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     }
   };
 
+  const deliveryFields = formColumns.delivery?.fields || [];
+
+  // Функция для фильтрации полей доставки
+  const getDeliveryValues = (data: any) => {
+    if (!data) return {};
+
+    // Получаем список полей доставки
+
+    // Фильтруем данные, оставляя только поля доставки
+    return deliveryFields.reduce(
+      (acc: any, field: any) => {
+        acc[field] = data[field] || 0; // Используем 0 как значение по умолчанию
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+  };
+
+  console.log(112, 'data', data);
+
   return (
     <Modal
       opened={opened}
@@ -313,21 +334,36 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     >
       <Grid>
         <Grid.Col span={updatedFormColumns.delivery ? 6 : 12}>
-          {/* Основные поля формы */}
+          {/* Основная форма */}
           <UniversalForm
             columns={Object.entries(updatedFormColumns)
-              .filter(([key]) => key !== 'delivery')
+              .filter(([key]) => {
+                // Исключаем сам блок delivery и все поля, которые относятся к доставке
+                return key !== 'delivery' && !deliveryFields.includes(key);
+              })
               .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})}
-            defaultValues={data || {}}
+            defaultValues={data}
             onSubmit={handleSubmit}
           />
         </Grid.Col>
+
         {updatedFormColumns.delivery && (
           <Grid.Col span={6}>
-            {/* Блок доставки */}
-            <UniversalForm
-              columns={{ delivery: updatedFormColumns.delivery }}
-              defaultValues={data || {}}
+            <DeliveryBlock
+              value={getDeliveryValues(data)}
+              onChange={(deliveryValues) => {
+                const formElement = document.querySelector('form');
+                if (formElement) {
+                  Object.entries(deliveryValues).forEach(([key, value]) => {
+                    const input = formElement.querySelector(`input[name="${key}"]`);
+                    if (input) {
+                      const event = new Event('input', { bubbles: true });
+                      Object.defineProperty(event, 'target', { value: input });
+                      input.dispatchEvent(event);
+                    }
+                  });
+                }
+              }}
               onSubmit={handleSubmit}
             />
           </Grid.Col>

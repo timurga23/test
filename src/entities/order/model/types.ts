@@ -6,6 +6,10 @@ interface OrderColumns {
     unique: true;
     nullable: false;
   };
+  numb_order: IBaseColumn & {
+    type: 'INTEGER';
+    nullable: false;
+  };
   id_client: IBaseColumn & {
     type: 'UUID';
     nullable: false;
@@ -46,7 +50,7 @@ interface OrderColumns {
 
 export type Order = TableType<OrderColumns>;
 
-export type NormalizedOrder = Pick<Order, 'id_order' | 'date' | 'rate' | 'commission'> & {
+export type NormalizedOrder = Pick<Order, 'id_order' | 'date' | 'rate' | 'commission' | 'numb_order'> & {
   client: string;
   position: string;
   amount: number;

@@ -17,6 +17,7 @@ export const RatePage = () => {
         formColumns={RATE_FORM_COLUMNS}
         idField={RATE_ID_FIELD}
         showAddButton={false}
+        isSearchable={false}
       />
     </PageLayout>
   );

@@ -3,6 +3,14 @@ import { NormalizedOrder } from './types';
 
 export const ORDER_COLUMNS: ITableColumn<NormalizedOrder>[] = [
   {
+    key: 'numb_order',
+    label: '#',
+    sortable: true,
+    width: 'max-content',
+    minWidth: 10,
+    render: (row) => row.numb_order,
+  },
+  {
     key: 'date',
     label: 'Дата',
     sortable: true,

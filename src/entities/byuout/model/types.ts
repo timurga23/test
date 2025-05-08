@@ -5,6 +5,10 @@ export interface BuyoutColumns {
     type: 'UUID';
     nullable: false;
   };
+  numb_buyout: IBaseColumn & {
+    type: 'INTEGER';
+    nullable: false;
+  };
   date: IBaseColumn & {
     type: 'DATE';
     nullable: true;

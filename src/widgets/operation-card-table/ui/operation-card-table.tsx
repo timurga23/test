@@ -72,12 +72,24 @@ export const OperationCardTable = () => {
         },
         // @ts-ignore
         type_operation: {
-          tableName: OPERATION_CARD_TABLE_NAME,
+          tableName: 'type_operation',
           valueField: 'id_type_operation',
           labelField: 'name',
         },
       }}
       isSearchable
+      formRelations={{
+        id_card: {
+          tableName: CARD_TABLE_NAME,
+          valueField: 'id_card',
+          labelField: 'number',
+        },
+        id_type_operation: {
+          tableName: 'type_operation',
+          valueField: 'id_type_operation',
+          labelField: 'name',
+        },
+      }}
       searchableColumns={['card', 'type_operation', 'description']}
       filters={filters}
     />

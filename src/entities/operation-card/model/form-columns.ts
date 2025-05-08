@@ -1,18 +1,25 @@
-import { ColumnTypeToValue } from '@/shared';
-import { BaseColumn } from '@/shared/ui/universal-form/universal-form';
-
-export const OPERATION_CARD_FORM_COLUMNS: Record<string, BaseColumn<keyof ColumnTypeToValue>> = {
+export const OPERATION_CARD_FORM_COLUMNS = {
   id_card: {
-    type: 'TEXT',
+    type: 'UUID',
+    nullable: false,
     label: 'Карта',
     fieldType: 'select',
-    options: [], // Будет заполняться динамически
+    relation: {
+      table: 'card',
+      value: 'id_card',
+      label: 'number',
+    },
   },
   id_type_operation: {
-    type: 'TEXT',
+    type: 'UUID',
+    nullable: false,
     label: 'Тип операции',
     fieldType: 'select',
-    options: [], // Будет заполняться динамически
+    relation: {
+      table: 'type_operation',
+      value: 'id_type_operation',
+      label: 'name',
+    },
   },
   date: {
     type: 'DATE',

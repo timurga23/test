@@ -13,24 +13,49 @@ import {
   RATE_PAGE_TITLE,
   TORG12_PAGE_TITLE,
 } from '@/entities';
-import { IconBellRinging, IconDatabaseImport, IconReceipt2 } from '@tabler/icons-react';
+import {
+  IconCards,
+  IconCreditCard,
+  IconCurrencyDollar,
+  IconEdit,
+  IconFileInvoice,
+  IconShield,
+  IconShoppingBag,
+  IconShoppingCart,
+  IconTruck,
+  IconUserCircle,
+  IconUserCog,
+  IconUsers,
+  IconWallet,
+} from '@tabler/icons-react';
+import { RoleTabs } from './type';
 
 // todo завести таблицы по роли
-export const tabs = {
-  account: [
-    { link: '/positions', label: POSITION_PAGE_TITLE, icon: IconBellRinging },
-    { link: '/employers', label: EMPLOYEE_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/cards', label: CARD_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/balance', label: BALANCE_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/rate', label: RATE_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/operation-cards', label: OPERATION_CARD_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/clients', label: CLIENT_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/orders', label: ORDER_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/cargos', label: CARGO_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/buyouts', label: BUYOUT_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/torg12s', label: TORG12_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/corrections', label: CORRECTION_PAGE_TITLE, icon: IconReceipt2 },
-    { link: '/operation-safes', label: OPERATION_SAFE_PAGE_TITLE, icon: IconReceipt2 },
+export const tabs: RoleTabs = {
+  admin: [
+    { link: '/positions', label: POSITION_PAGE_TITLE, icon: IconUserCog },
+    { link: '/employers', label: EMPLOYEE_PAGE_TITLE, icon: IconUsers },
+    { link: '/cards', label: CARD_PAGE_TITLE, icon: IconCreditCard },
+    { link: '/balance', label: BALANCE_PAGE_TITLE, icon: IconWallet },
+    { link: '/rate', label: RATE_PAGE_TITLE, icon: IconCurrencyDollar },
+    { link: '/operation-cards', label: OPERATION_CARD_PAGE_TITLE, icon: IconCards },
+    { link: '/clients', label: CLIENT_PAGE_TITLE, icon: IconUserCircle },
+    { link: '/orders', label: ORDER_PAGE_TITLE, icon: IconShoppingCart },
+    { link: '/cargos', label: CARGO_PAGE_TITLE, icon: IconTruck },
+    { link: '/buyouts', label: BUYOUT_PAGE_TITLE, icon: IconShoppingBag },
+    { link: '/torg12s', label: TORG12_PAGE_TITLE, icon: IconFileInvoice },
+    { link: '/corrections', label: CORRECTION_PAGE_TITLE, icon: IconEdit },
+    { link: '/operation-safes', label: OPERATION_SAFE_PAGE_TITLE, icon: IconShield },
   ],
-  general: [{ link: '/partners', label: 'Партнеры', icon: IconDatabaseImport }],
+  manager: [
+    { link: '/clients', label: CLIENT_PAGE_TITLE, icon: IconUserCircle },
+    { link: '/orders', label: ORDER_PAGE_TITLE, icon: IconShoppingCart },
+    { link: '/cargos', label: CARGO_PAGE_TITLE, icon: IconTruck },
+    { link: '/buyouts', label: BUYOUT_PAGE_TITLE, icon: IconShoppingBag },
+  ],
+  supplier: [
+    { link: '/orders', label: ORDER_PAGE_TITLE, icon: IconShoppingCart },
+    { link: '/cargos', label: CARGO_PAGE_TITLE, icon: IconTruck },
+    { link: '/buyouts', label: BUYOUT_PAGE_TITLE, icon: IconShoppingBag },
+  ],
 };

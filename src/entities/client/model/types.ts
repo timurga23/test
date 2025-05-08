@@ -5,6 +5,10 @@ export interface ClientColumns {
     type: 'UUID';
     nullable: false;
   };
+  numb_client: IBaseColumn & {
+    type: 'INTEGER';
+    nullable: false;
+  };
   organization: IBaseColumn & {
     type: 'TEXT';
     nullable: true;

@@ -3,6 +3,14 @@ import { NormalizedCorrection } from './types';
 
 export const CORRECTION_COLUMNS: ITableColumn<NormalizedCorrection>[] = [
   {
+    key: 'numb_correction',
+    label: '#',
+    sortable: true,
+    width: 'max-content',
+    minWidth: 10,
+    render: (row) => row.numb_correction,
+  },
+  {
     key: 'date',
     label: 'Дата',
     sortable: true,

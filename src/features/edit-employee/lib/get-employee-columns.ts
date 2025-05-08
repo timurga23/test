@@ -27,7 +27,7 @@ export const getEmployeeColumns = (
     },
     relevance: { type: 'BOOLEAN', nullable: true, defaultValue: false, label: 'Активен' },
     id_employee_replacement: {
-      type: 'TEXT',
+      type: 'UUID',
       nullable: true,
       label: 'Замещающий сотрудник',
       fieldType: 'select',

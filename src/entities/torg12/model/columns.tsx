@@ -3,6 +3,14 @@ import { NormalizedTorg12 } from './types';
 
 export const TORG12_COLUMNS: ITableColumn<NormalizedTorg12>[] = [
   {
+    key: 'numb_torg12',
+    label: '#',
+    sortable: true,
+    width: 'max-content',
+    minWidth: 10,
+    render: (row) => row.numb_torg12,
+  },
+  {
     key: 'date',
     label: 'Дата',
     sortable: true,

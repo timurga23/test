@@ -17,6 +17,7 @@ export const PositionsPage = () => {
         formColumns={POSITION_FORM_COLUMNS}
         idField={POSITION_ID_FIELD}
         showAddButton={false}
+        isSearchable={false}
       />
     </PageLayout>
   );

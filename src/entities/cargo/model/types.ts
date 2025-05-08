@@ -5,6 +5,10 @@ export interface CargoColumns {
     type: 'UUID';
     nullable: false;
   };
+  numb_cargo: IBaseColumn & {
+    type: 'INTEGER';
+    nullable: false;
+  };
   date_pay: IBaseColumn & {
     type: 'DATE';
     nullable: true;

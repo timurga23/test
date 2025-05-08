@@ -5,6 +5,10 @@ export interface Torg12Columns {
     type: 'UUID';
     nullable: false;
   };
+  numb_torg12: IBaseColumn & {
+    type: 'INTEGER';
+    nullable: false;
+  };
   date: IBaseColumn & {
     type: 'DATE';
     nullable: true;

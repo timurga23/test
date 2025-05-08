@@ -5,6 +5,10 @@ export interface CorrectionColumns {
     type: 'UUID';
     nullable: false;
   };
+  numb_correction: IBaseColumn & {
+    type: 'INTEGER';
+    nullable: false;
+  };
   date: IBaseColumn & {
     type: 'DATE';
     nullable: true;

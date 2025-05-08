@@ -47,6 +47,17 @@ interface CrudTableProps<T, N> {
   };
 }
 
+// Добавим вспомогательные функции для работы с датами
+const setStartOfDay = (date: Date) => {
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const setEndOfDay = (date: Date) => {
+  date.setHours(23, 59, 59, 999);
+  return date;
+};
+
 export const CrudTable = <T extends { [key: string]: any }, N = T>({
   tableName,
   columns,
@@ -63,6 +74,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   modalSize = 'lg',
   quickFilters,
   quickFilterRelation,
+  isSearchable = true,
 }: CrudTableProps<T, N>) => {
   const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -116,10 +128,8 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   // Обработчик быстрых фильтров
   const handleQuickFilterChange = (filterId: string) => {
     // @ts-ignore
-    const filter = preparedQuickFilters.find((f) => f.id === filterId);
+    const filter = preparedQuickFilters?.find((f) => f.id === filterId);
     setActiveQuickFilter(filterId);
-
-    console.log(filter);
 
     if (filter && filter.label !== 'Все') {
       // Обновляем общий state фильтров
@@ -130,7 +140,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     } else if (filterId === 'all') {
       // Если выбран "Все", очищаем соответствующий фильтр
       // @ts-ignore
-      const firstFilter = preparedQuickFilters[0];
+      const firstFilter = preparedQuickFilters?.[0];
       if (firstFilter) {
         setFilterValues((prev) => ({
           ...prev,
@@ -150,7 +160,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     // Если изменяется поле, которое связано с быстрым фильтром,
     // обновляем активный быстрый фильтр
     // @ts-ignore
-    const quickFilter = preparedQuickFilters.find((f) => f.field === field && f.value === value);
+    const quickFilter = preparedQuickFilters?.find((f) => f.field === field && f.value === value);
     if (quickFilter) {
       // @ts-ignore
       setActiveQuickFilter(quickFilter?.id);
@@ -159,7 +169,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     }
   };
 
-  // Применяем фильтры к данным
+  // В функции фильтрации обновляем логику работы с датами
   const filteredData = useMemo(() => {
     let result = normalizedData;
 
@@ -175,20 +185,52 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
       });
     }
 
-    // Применяем все фильтры (включая быстрые)
+    // Применяем все фильтры
     Object.entries(filterValues).forEach(([field, value]) => {
       if (value !== null) {
-        // @ts-ignore
-        result = result.filter((item) => {
+        // Проверяем, является ли это date-range фильтром
+        const isDateRange = filters.some(
+          (f) => f.type === 'date-range' && f.field === field.replace(/_from|_to$/, '')
+        );
+
+        if (isDateRange) {
+          const baseField = field.replace(/_from|_to$/, '');
+          const isFromFilter = field.endsWith('_from');
+          const isToFilter = field.endsWith('_to');
+
           // @ts-ignore
-          const fieldValue = item[field];
-          return fieldValue === value;
-        });
+          result = result.filter((item) => {
+            // @ts-ignore
+            const itemDate = new Date(item[baseField]);
+
+            if (isFromFilter && value) {
+              const fromDate = setStartOfDay(new Date(value));
+              return itemDate >= fromDate;
+            }
+            if (isToFilter && value) {
+              const toDate = setEndOfDay(new Date(value));
+              return itemDate <= toDate;
+            }
+            return true;
+          });
+        } else {
+          // Обычная фильтрация для не date-range полей
+          // @ts-ignore
+          result = result.filter((item) => {
+            // @ts-ignore
+            const fieldValue = item[field];
+            const filterField = filters.find((f) => f.field === field);
+            return (
+              fieldValue === value ||
+              (item as any)[field]?.find((f: any) => f[filterField as any]?.searchField === value)
+            );
+          });
+        }
       }
     });
 
     return result;
-  }, [normalizedData, searchQuery, filterValues, searchableColumns]);
+  }, [normalizedData, searchQuery, filterValues, searchableColumns, filters]);
 
   // Получаем данные для текущей страницы
   const paginatedData = filteredData.slice(
@@ -276,13 +318,15 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     <>
       <Flex mb="md" gap={16} direction="column">
         <Group>
-          <TextInput
-            placeholder="Поиск..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            leftSection={<IconSearch size={16} />}
-            style={{ maxWidth: '300px' }}
-          />
+          {isSearchable && (
+            <TextInput
+              placeholder="Поиск..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              leftSection={<IconSearch size={16} />}
+              style={{ maxWidth: '300px' }}
+            />
+          )}
           {filters.length > 0 && (
             <Button
               variant="light"

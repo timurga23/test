@@ -3,6 +3,14 @@ import { NormalizedBuyout } from './types';
 
 export const BUYOUT_COLUMNS: ITableColumn<NormalizedBuyout>[] = [
   {
+    key: 'numb_buyout',
+    label: '#',
+    sortable: true,
+    width: 'max-content',
+    minWidth: 10,
+    render: (row) => row.numb_buyout,
+  },
+  {
     key: 'date_pay',
     label: 'Дата',
     sortable: true,

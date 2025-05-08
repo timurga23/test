@@ -3,6 +3,14 @@ import { NormalizedCargo } from './types';
 
 export const CARGO_COLUMNS: ITableColumn<NormalizedCargo>[] = [
   {
+    key: 'numb_cargo',
+    label: '#',
+    sortable: true,
+    width: 'max-content',
+    minWidth: 10,
+    render: (row) => row.numb_cargo,
+  },
+  {
     key: 'date_pay',
     label: 'Дата оплаты',
     sortable: true,
