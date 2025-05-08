@@ -16,6 +16,7 @@ export const BalancePage = () => {
         columns={BALANCE_COLUMNS}
         formColumns={BALANCE_FORM_COLUMNS}
         idField={BALANCE_ID_FIELD}
+        isSearchable={false}
       />
     </PageLayout>
   );

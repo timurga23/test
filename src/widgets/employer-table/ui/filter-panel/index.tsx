@@ -1,5 +1,5 @@
 import { Position } from '@/entities';
-import { Box, Checkbox, Radio, Stack, Text, Title } from '@mantine/core';
+import { Box, Checkbox, Radio, Stack, Text, Title, Button } from '@mantine/core';
 
 interface Filters {
   positions: string[];
@@ -28,6 +28,13 @@ export const FilterPanel = ({ positions, currentFilters, onFilterChange }: Filte
     onFilterChange({
       ...currentFilters,
       relevance: value === '' ? null : value === 'true',
+    });
+  };
+
+  const handleResetFilters = () => {
+    onFilterChange({
+      positions: [],
+      relevance: null,
     });
   };
 
@@ -63,6 +70,10 @@ export const FilterPanel = ({ positions, currentFilters, onFilterChange }: Filte
             </Stack>
           </Radio.Group>
         </Stack>
+
+        <Button onClick={handleResetFilters} variant="outline" color="red">
+          Сбросить
+        </Button>
       </Stack>
     </Box>
   );

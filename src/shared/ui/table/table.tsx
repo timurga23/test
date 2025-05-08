@@ -2,6 +2,7 @@ import { Center, Group, Skeleton, Table, Text, UnstyledButton } from '@mantine/c
 import { IconChevronDown, IconChevronUp, IconSelector } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import styles from './index.module.scss';
+import { getRowColor } from './_utils/get-row-color';
 
 export interface ITableColumn<T = any> {
   key: keyof T;
@@ -172,7 +173,7 @@ export const TableSort = <T extends Record<string, any>>({
                   // @ts-ignore
                   key={row?.id}
                   onClick={() => onRowClick?.(row)}
-                  style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                  style={{ cursor: onRowClick ? 'pointer' : 'default', backgroundColor: getRowColor(row.id_type_operation) }}
                 >
                   {columns.map((column) => (
                     // @ts-ignore

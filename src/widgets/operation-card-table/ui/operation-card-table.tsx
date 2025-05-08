@@ -56,6 +56,15 @@ export const OperationCardTable = () => {
     },
   ];
 
+  const createCardQuickFilters = (data: any[]) => {
+    return data.map((card: any) => ({
+      id: card.name,
+      label: card.name,
+      field: 'card',
+      value: card.name,
+    }));
+  };
+
   return (
     <CrudTable<OperationCard, NormalizedOperationCard>
       tableName={OPERATION_CARD_TABLE_NAME}
@@ -92,6 +101,13 @@ export const OperationCardTable = () => {
       }}
       searchableColumns={['card', 'type_operation', 'description']}
       filters={filters}
+      quickFilters={createCardQuickFilters}
+      quickFilterRelation={{
+        tableName: CARD_TABLE_NAME,
+        // @ts-ignore
+        valueField: 'id_card',
+        labelField: 'name',
+      }}
     />
   );
 };
