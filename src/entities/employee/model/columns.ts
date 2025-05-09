@@ -7,7 +7,7 @@ export const EMPLOYEE_COLUMNS: ITableColumn<NormalizedEmployee>[] = [
     label: 'ФИО',
     sortable: true,
     width: 'auto',
-    minWidth: 200,
+    minWidth: 120,
     render: (row) => row.fullName,
   },
   {
