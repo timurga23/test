@@ -45,7 +45,8 @@ interface CrudTableProps<T, N> {
   quickFilterRelation?: {
     tableName: string;
   };
-  additionalBlock?: React.ReactNode;
+  additionalBlock?: (calculatedData: any) => React.ReactNode;
+  calculateData?: (data: T[], filterValues: Record<string, any>) => any;
 }
 
 // Добавим вспомогательные функции для работы с датами
@@ -76,7 +77,8 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   quickFilters,
   quickFilterRelation,
   isSearchable = true,
-  additionalBlock = null,
+  additionalBlock,
+  calculateData,
 }: CrudTableProps<T, N>) => {
   const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -224,7 +226,10 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
             const filterField = filters.find((f) => f.field === field);
             return (
               fieldValue === value ||
-              Array.isArray((item as any)[field]) && (item as any)[field]?.find((f: any) => f[filterField as any]?.searchField === value) ||
+              (Array.isArray((item as any)[field]) &&
+                (item as any)[field]?.find(
+                  (f: any) => f[filterField as any]?.searchField === value
+                )) ||
               (item as any)[field]?.includes(value)
             );
           });
@@ -317,8 +322,16 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     relations: formRelations,
   };
 
+  // Вычисляем общие данные, если передан calculateData
+  const calculatedData = useMemo(() => {
+    return calculateData ? calculateData(normalizedData, filterValues) : null;
+  }, [calculateData, normalizedData, filterValues]);
+
   return (
     <>
+      {/* Используем additionalBlock для отображения общей информации */}
+      {additionalBlock && calculatedData && additionalBlock(calculatedData)}
+
       <Flex mb="md" gap={16} direction="column">
         <Group>
           {isSearchable && (
@@ -339,7 +352,6 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
               Фильтры
             </Button>
           )}
-          {additionalBlock}
           {showAddButton && (
             <ActionIcon variant="filled" color="blue" onClick={handleAdd} size="lg">
               <IconPlus size={20} />

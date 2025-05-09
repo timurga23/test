@@ -323,8 +323,6 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     );
   };
 
-  console.log(112, 'data', data);
-
   return (
     <Modal
       opened={opened}

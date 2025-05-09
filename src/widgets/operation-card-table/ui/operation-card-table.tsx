@@ -6,8 +6,12 @@ import {
   OPERATION_CARD_TABLE_NAME,
   OperationCard,
 } from '@/entities/operation-card';
+import { calculateBalance } from '@/features';
 import { CrudTable } from '@/shared/ui';
 import { Filter } from '@/shared/ui/filter-panel/types';
+import {
+  Text
+} from '@mantine/core';
 
 export const OperationCardTable = () => {
   const normalizeData = (
@@ -107,6 +111,45 @@ export const OperationCardTable = () => {
         // @ts-ignore
         valueField: 'id_card',
         labelField: 'name',
+      }}
+      additionalBlock={(calculatedData) => {
+        console.log(112, 'test', calculatedData)
+        const selectedCard = calculatedData.filterValues?.id_card;
+        
+        if (selectedCard) {
+          const cardData = calculatedData.cardData;
+          return (
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <Text>Ответственный: {cardData.responsible}</Text>
+              <Text>Баланс карты: {cardData.balance}</Text>
+              <Text>Остаток лимита: {cardData.limit}</Text>
+              <Text>Расход: {cardData.expense}</Text>
+            </div>
+          );
+        }
+
+        return (
+          <Text>Общий баланс: {calculatedData.totalBalance}</Text>
+        );
+      }}
+      calculateData={(data, filterValues) => {
+        // Пересчитываем данные при каждом изменении фильтров
+        const result = calculateBalance(data, filterValues);
+        
+        // Если есть фильтр по карте, добавляем дополнительную информацию
+        if (filterValues?.id_card) {
+          const cardData = data.find(card => card.id_card === filterValues.id_card);
+          if (cardData) {
+            result.cardData = {
+              responsible: cardData.responsible,
+              balance: cardData.balance,
+              limit: cardData.limit,
+              expense: cardData.expense
+            };
+          }
+        }
+        
+        return result;
       }}
     />
   );
