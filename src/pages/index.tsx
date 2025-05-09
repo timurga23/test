@@ -38,8 +38,8 @@ export const BASE_PAGES = [
   },
   {
     path: '/cards',
-    element:  <PageLayout title={"Карты"}>
-      <CardTable />
+    element: <PageLayout title={"Карты"}>
+     <CardTable />
     </PageLayout>,
   },
   {
@@ -52,6 +52,7 @@ export const BASE_PAGES = [
         formColumns={BALANCE_FORM_COLUMNS}
         idField={BALANCE_ID_FIELD}
         isSearchable={false}
+        autoNumberFields={['numb_balance']}
       />
     </PageLayout>
     </PageLayout>,

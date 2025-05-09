@@ -26,6 +26,8 @@ interface UniversalEditModalProps<T = any> {
     };
   };
   modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+  autoNumberFields?: string[];
+  tableData: T[];
 }
 
 const RELATION_FIELDS = ['positions', 'select', 'multiselect', 'dynamic-inputs'];
@@ -40,6 +42,8 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   idField,
   relations = {},
   modalSize = 'lg',
+  autoNumberFields = [],
+  tableData,
 }: UniversalEditModalProps<T>) => {
   const { mutateAsync: addMutation } = useAddTableData();
   const { mutateAsync: updateMutation } = useUpdateTableData();
@@ -155,12 +159,22 @@ export const UniversalEditModal = <T extends Record<string, any>>({
       );
 
       if (!data) {
+        // Используем переданные данные таблицы вместо нового запроса
+        const maxValues = autoNumberFields.map((field) => {
+          const maxValue = Math.max(...(tableData || []).map((item: any) => item[field] || 0));
+          return { field, maxValue };
+        });
+
+        // Добавляем новые значения в formattedValues
+        maxValues.forEach(({ field, maxValue }) => {
+          formattedValues[field] = maxValue + 1;
+        });
+
         // Добавление новой записи
         const result = await addMutation({
           tableName,
           data: [
             {
-              // @ts-ignore
               row: Object.entries(formattedValues).map(([column, value]) => ({
                 column,
                 value,

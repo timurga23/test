@@ -1,62 +1,68 @@
-import { Card, CARD_COLUMNS } from '@/entities/card';
-import { useTableData } from '@/entities/user-table';
-import { EditCardModal } from '@/features';
-import { TableSort } from '@/shared/ui/table/table';
-import { ActionIcon, Group } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
-import { useState } from 'react';
+import { Card, CARD_COLUMNS, CARD_TABLE_NAME } from '@/entities/card';
+import { CARD_FORM_COLUMNS } from '@/entities/card/model/form-columns';
+import { CrudTable } from '@/shared/ui';
 import { NormalizedCard } from '../model/types';
 
-export const CardTable = () => {
-  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
-  const [modalOpened, setModalOpened] = useState(false);
+const normalizeData = (
+  cards: Card[],
+  relations: {
+    bank: any[];
+    employee: any[];
+  }
+): NormalizedCard[] => {
 
-  const { data: cards, refetch } = useTableData<Card>('card');
-  const { data: banks } = useTableData('bank');
-  const { data: employees } = useTableData('employee');
+  return cards.map((card) => {
+    const bank = relations.bank?.find((bank) => bank.id_bank === card.id_bank);
+    const employee = relations.employee?.find(
+      (emp) => emp.id_employee === card.id_employee
+    );
 
-  // @ts-ignore
-  const normalizedData: NormalizedCard[] =
-    cards?.map((card) => ({
+
+    return {
       ...card,
-      bank: banks?.find((bank) => bank.id_bank === card.id_bank)?.name || '',
-      employee: employees?.find((emp) => emp.id_employee === card.id_employee)
-        ? `${employees?.find((emp) => emp.id_employee === card.id_employee)?.last_name} ${employees?.find((emp) => emp.id_employee === card.id_employee)?.first_name}`
+      bank: bank?.name || '',
+      employee: employee
+        ? `${employee.last_name} ${employee.first_name}`
         : '',
-    })) || [];
+    };
+  });
+};
 
-  const handleEdit = (card: NormalizedCard) => {
-    // Находим оригинальную карту для редактирования
-    const originalCard = cards?.find((c) => c.id_card === card.id_card) || null;
-    setSelectedCard(originalCard);
-    setModalOpened(true);
-  };
-
-  const handleAdd = () => {
-    setSelectedCard(null);
-    setModalOpened(true);
-  };
-
+export const CardTable = () => {
   return (
-    <>
-      <Group mb="md">
-        <ActionIcon variant="filled" color="blue" onClick={handleAdd} size="lg">
-          <IconPlus size={20} />
-        </ActionIcon>
-      </Group>
-
-      <TableSort<NormalizedCard>
-        data={normalizedData}
+   <CrudTable<Card>
+      normalizeData={normalizeData}
+        tableName={CARD_TABLE_NAME}
         columns={CARD_COLUMNS}
-        onRowClick={handleEdit}
+        formColumns={CARD_FORM_COLUMNS}
+        idField={'id_card'}
+        formRelations={{
+          // @ts-ignore
+          id_bank: {
+            tableName: 'bank',
+            valueField: 'id_bank',
+            labelField: 'name'
+          },
+          id_employee: {
+            tableName: 'employee',
+            valueField: 'id_employee',
+            labelField: 'last_name'
+          }
+        }}
+        relations={{
+          // @ts-ignore
+          bank: {
+            tableName: 'bank',
+            foreignKey: 'id_bank',
+            displayField: 'name'
+          },
+          // @ts-ignore
+          employee: {
+            tableName: 'employee',
+            foreignKey: 'id_employee',
+            displayField: 'name'
+          }
+        }}
       />
-
-      <EditCardModal
-        opened={modalOpened}
-        onClose={() => setModalOpened(false)}
-        card={selectedCard}
-        refetch={refetch}
-      />
-    </>
   );
 };

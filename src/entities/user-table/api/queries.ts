@@ -12,6 +12,7 @@ export const useTableData = <
     queryKey: ['table', tableName],
     queryFn: () => tableApi.getTableData<T>(tableName),
     staleTime: 0, // Отключаем кэширование
+    enabled: !!tableName,
   });
 };
 

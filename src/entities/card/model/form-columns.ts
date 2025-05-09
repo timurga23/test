@@ -13,20 +13,30 @@ export const CARD_FORM_COLUMNS = {
     placeholder: 'Введите номер карты',
   },
   id_bank: {
-    type: 'TEXT',
+    type: 'UUID',
     nullable: true,
     label: 'Банк',
     fieldType: 'select',
     placeholder: 'Выберите банк',
+    relation: {
+      table: 'bank',
+      value: 'id_bank',
+      label: 'name',
+    },
   },
   id_employee: {
-    type: 'TEXT',
+    type: 'UUID',
     nullable: true,
     label: 'Ответственный',
     fieldType: 'select',
     placeholder: 'Выберите ответственного',
+    relation: {
+      table: 'employee',
+      value: 'id_employee',
+      label: 'name',
+    },
   },
-  limit_amount: { type: 'INTEGER', nullable: true, label: 'Лимит', placeholder: 'Введите лимит' },
+  card_limit: { type: 'INTEGER', nullable: true, label: 'Лимит', placeholder: 'Введите лимит' },
   blocking: {
     type: 'BOOLEAN',
     nullable: true,

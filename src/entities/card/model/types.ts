@@ -30,7 +30,7 @@ interface CardColumns {
     type: 'UUID';
     nullable: true;
   };
-  limit_amount: IBaseColumn & {
+  card_limit: IBaseColumn & {
     type: 'INTEGER';
     nullable: true;
   };

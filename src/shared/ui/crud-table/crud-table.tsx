@@ -48,6 +48,7 @@ interface CrudTableProps<T, N> {
   additionalBlock?: (calculatedData: any) => React.ReactNode;
   calculateData?: (data: T[], filterValues: Record<string, any>) => any;
   isEditable?: boolean;
+  autoNumberFields?: string[];
 }
 
 // Добавим вспомогательные функции для работы с датами
@@ -81,6 +82,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   additionalBlock,
   calculateData,
   isEditable = true,
+  autoNumberFields = [],
 }: CrudTableProps<T, N>) => {
   const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -313,6 +315,8 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     });
   };
 
+  const defaultAutoNumberFields = [`numb_${idField.split('_')[1]}`]
+
   const modalProps = {
     opened: modalOpened,
     onClose: () => setModalOpened(false),
@@ -322,6 +326,9 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     formColumns,
     idField,
     relations: formRelations,
+    tableData: data,
+    modalSize,
+    autoNumberFields: autoNumberFields?.length ? autoNumberFields : defaultAutoNumberFields,
   };
 
   // Вычисляем общие данные, если передан calculateData
