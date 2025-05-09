@@ -47,6 +47,7 @@ interface CrudTableProps<T, N> {
   };
   additionalBlock?: (calculatedData: any) => React.ReactNode;
   calculateData?: (data: T[], filterValues: Record<string, any>) => any;
+  isEditable?: boolean;
 }
 
 // Добавим вспомогательные функции для работы с датами
@@ -79,6 +80,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   isSearchable = true,
   additionalBlock,
   calculateData,
+  isEditable = true,
 }: CrudTableProps<T, N>) => {
   const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -241,13 +243,13 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   }, [normalizedData, searchQuery, filterValues, searchableColumns, filters]);
 
   // Получаем данные для текущей страницы
-  const paginatedData = filteredData.slice(
+  const paginatedData = filteredData?.slice(
     (activePage - 1) * itemsPerPage,
     activePage * itemsPerPage
   );
 
   // Вычисляем общее количество страниц на основе отфильтрованных данных
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData?.length / itemsPerPage);
 
   const handleEdit = (item: N) => {
     setSelected(item);
@@ -352,7 +354,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
               Фильтры
             </Button>
           )}
-          {showAddButton && (
+          {showAddButton && isEditable && (
             <ActionIcon variant="filled" color="blue" onClick={handleAdd} size="lg">
               <IconPlus size={20} />
             </ActionIcon>
@@ -374,11 +376,9 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
 
       <TableSort
         isLoading={isLoading}
-        // @ts-ignore
         data={paginatedData}
         columns={columns}
-        // @ts-ignore
-        onRowClick={handleEdit}
+        onRowClick={isEditable ? handleEdit : undefined}
       />
 
       {totalPages > 1 && (
@@ -402,12 +402,11 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
         />
       </Drawer>
 
-      {CustomEditModal ? (
+      {isEditable && (CustomEditModal ? (
         <CustomEditModal {...modalProps} />
       ) : (
-        // @ts-ignore
         <UniversalEditModal {...modalProps} modalSize={modalSize} idField={idField} />
-      )}
+      ))}
     </>
   );
 };

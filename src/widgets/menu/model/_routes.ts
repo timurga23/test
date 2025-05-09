@@ -15,6 +15,7 @@ import {
 } from '@/entities';
 import {
   IconCards,
+  IconChartBar,
   IconCreditCard,
   IconCurrencyDollar,
   IconEdit,
@@ -46,6 +47,7 @@ export const tabs: RoleTabs = {
     { link: '/torg12s', label: TORG12_PAGE_TITLE, icon: IconFileInvoice },
     { link: '/corrections', label: CORRECTION_PAGE_TITLE, icon: IconEdit },
     { link: '/operation-safes', label: OPERATION_SAFE_PAGE_TITLE, icon: IconShield },
+    { link: '/analytics-card-balance', label: "Отчет по картам", icon: IconChartBar },
   ],
   manager: [
     { link: '/clients', label: CLIENT_PAGE_TITLE, icon: IconUserCircle },

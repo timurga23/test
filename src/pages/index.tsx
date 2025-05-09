@@ -9,6 +9,7 @@ import { POSITION_COLUMNS, POSITION_FORM_COLUMNS } from "@/entities";
 import { POSITION_ID_FIELD } from "@/entities";
 import { PageLayout } from "@/shared/ui";
 import { BuyoutTable, CardTable, CargoTable, ClientTable, EmployerTable, LoginModal, OperationCardTable, OperationSafeTable, OrderTable, Torg12Table } from "@/widgets";
+import { AnalyticsCardBalanceTable } from "@/widgets/analytic-card/ui/analytic-card-table";
 import { CorrectionTable } from "@/widgets/correction-table /ui/correction-table";
 
 export const BASE_PAGES = [
@@ -114,6 +115,12 @@ export const BASE_PAGES = [
     path: '/operation-safes',
     element: <PageLayout title={OPERATION_SAFE_PAGE_TITLE}>
       <OperationSafeTable />
+    </PageLayout>,
+  },
+  {
+    path: '/analytics-card-balance',
+    element: <PageLayout title={"Отчет по картам"}>
+      <AnalyticsCardBalanceTable />
     </PageLayout>,
   },
 ]

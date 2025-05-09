@@ -1,8 +1,8 @@
 import { Center, Group, Skeleton, Table, Text, UnstyledButton } from '@mantine/core';
 import { IconChevronDown, IconChevronUp, IconSelector } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import styles from './index.module.scss';
 import { getRowColor } from './_utils/get-row-color';
+import styles from './index.module.scss';
 
 export interface ITableColumn<T = any> {
   key: keyof T;
@@ -153,7 +153,7 @@ export const TableSort = <T extends Record<string, any>>({
         <Table.Tbody>
           {isLoading
             ? // Скелетон с тем же количеством строк, что и в данных
-              Array.from({ length: data.length || 10 }).map((_, rowIndex) => (
+              Array.from({ length: data?.length || 10 }).map((_, rowIndex) => (
                 <Table.Tr key={`skeleton-${rowIndex}`}>
                   {columns.map((column, colIndex) => (
                     <Table.Td
@@ -168,7 +168,7 @@ export const TableSort = <T extends Record<string, any>>({
                   ))}
                 </Table.Tr>
               ))
-            : sortedData.map((row) => (
+            : sortedData?.map((row) => (
                 <Table.Tr
                   // @ts-ignore
                   key={row?.id}
