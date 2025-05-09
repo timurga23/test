@@ -40,3 +40,23 @@ export const OPERATION_CARD_COLUMNS: ITableColumn<NormalizedOperationCard>[] = [
     minWidth: 200,
   },
 ];
+
+export const ANALYTICS_CARD_BALANCE_COLUMNS: ITableColumn<NormalizedOperationCard>[] = [
+  {
+    key: 'card',
+    label: 'Карта',
+    sortable: true,
+    width: 'auto',
+    minWidth: 150,
+  },
+  {
+    key: 'balance',
+    label: 'Баланс',
+    sortable: true,
+    width: 'auto',
+    minWidth: 150,
+    render: (row) => `${Number(row.balance)?.toLocaleString()} ₽`,
+  },
+];
+
+

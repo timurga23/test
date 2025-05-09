@@ -41,4 +41,5 @@ export interface NormalizedOperationCard {
   summ: OperationCard['summ'];
   point_summ: OperationCard['point_summ'];
   description: OperationCard['description'];
+  balance?: number;
 }

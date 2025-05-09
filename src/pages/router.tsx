@@ -1,80 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import { BalancePage } from './balance/ui/page';
-import { BuyoutsPage } from './buyout/ui/page';
-import { CardsPage } from './cards/ui/page';
-import { CargosPage } from './cargo/ui/page';
-import { ClientsPage } from './clients/ui/page';
-import { CorrectionPage } from './correction/ui/page';
-import { EmployersPage } from './employers';
-import { LoginPage } from './login';
-import { OperationCardsPage } from './operation-cards/ui/page';
-import { OrdersPage } from './order/ui/page';
-import { PositionsPage } from './positions/ui/page';
-import { RatePage } from './rate/ui/page';
-import { Torg12Page } from './torg12/ui/page';
+import { BASE_PAGES } from '.';
 import { WelcomePage } from './welcome';
-import { OperationSafePage } from './operation-safe/page';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <WelcomePage />,
   },
-  {
-    path: '/positions',
-    element: <PositionsPage />,
-  },
-  {
-    path: '/employers',
-    element: <EmployersPage />,
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/cards',
-    element: <CardsPage />,
-  },
-  {
-    path: '/balance',
-    element: <BalancePage />,
-  },
-  {
-    path: '/rate',
-    element: <RatePage />,
-  },
-  {
-    path: '/operation-cards',
-    element: <OperationCardsPage />,
-  },
-  {
-    path: '/clients',
-    element: <ClientsPage />,
-  },
-  {
-    path: '/orders',
-    element: <OrdersPage />,
-  },
-  {
-    path: '/cargos',
-    element: <CargosPage />,
-  },
-  {
-    path: '/buyouts',
-    element: <BuyoutsPage />,
-  },
-  {
-    path: '/torg12s',
-    element: <Torg12Page />,
-  },
-  {
-    path: '/corrections',
-    element: <CorrectionPage />,
-  },
-  {
-    path: '/operation-safes',
-    element: <OperationSafePage />,
-  },
+  ...BASE_PAGES,
 ]);
