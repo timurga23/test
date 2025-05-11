@@ -113,7 +113,6 @@ export const OperationCardTable = () => {
         labelField: 'name',
       }}
       additionalBlock={(calculatedData) => {
-        console.log(112, 'test', calculatedData)
         const selectedCard = calculatedData.filterValues?.id_card;
         
         if (selectedCard) {

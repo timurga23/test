@@ -7,7 +7,11 @@ import {
   TORG12_TABLE_NAME,
 } from '@/entities';
 import { createTorg12QuickFilters } from '@/entities/torg12/model/quick-filters';
+import { formatAmount } from '@/shared/lib/helpers/formatAmount';
 import { CrudTable } from '@/shared/ui';
+import {
+  Text
+} from '@mantine/core';
 import { TORG12_TABLE_FORM_RELATIONS, TORG12_TABLE_RELATIONS } from '../_constant';
 
 export const Torg12Table = () => {
@@ -21,6 +25,7 @@ export const Torg12Table = () => {
     }
   ): NormalizedTorg12[] => {
     return torg12s.map((torg12) => {
+
       const client = relations.client?.find((client) => client.id_client === torg12.id_client);
       const supplier = relations.balance?.find(
         (balance) => balance.id_balance === torg12.id_balance_supplier
@@ -29,9 +34,9 @@ export const Torg12Table = () => {
       const balance = relations.balance?.find(
         (balance) => balance.id_balance === torg12.id_balance
       );
-      const status = relations.status?.find((status) => status.id_status === torg12.status);
+      const status = relations.status?.find((status) => status.numb_status === torg12.status);
 
-      const purpose = balance ? `Баланс: ${balance.name}` : card ? `Карта: ${card.purpose}` : '';
+      const purpose = balance ? `Баланс: ${balance.name}` : card?.name ? `Карта: ${card.name}` : '';
 
       return {
         ...torg12,
@@ -43,6 +48,7 @@ export const Torg12Table = () => {
         profit: torg12.profit || 0,
         supplier_name: supplier?.name || '',
         status: status?.name || '',
+        numb_status: torg12.status || '',
         purpose,
       };
     });
@@ -68,6 +74,46 @@ export const Torg12Table = () => {
         // @ts-ignore
         valueField: 'id_status',
         labelField: 'name',
+      }}
+      additionalBlock={(calculatedData) => {
+        const {profit, objBalance} = calculatedData;
+        const oleg = Object.values(objBalance)[0];
+        
+        return (
+            <Text>Олег: {formatAmount(oleg)} Прибыль: {formatAmount(profit)}</Text>
+        );
+      }}
+      calculateData={(data, filterValues) => {
+        let profit = 0;
+        let objBalance = {};
+        
+        // Используем первый день текущего месяца, как в старом коде
+        const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+        
+        const sortedData = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        sortedData.forEach(item => {
+          if (item.numb_status > 1) {
+            if (item.id_balance) {
+              if (!objBalance[item.id_balance]) {
+                objBalance[item.id_balance] = 0;
+              }
+              objBalance[item.id_balance] += item.income;
+            }
+            if (!objBalance[item.id_balance_supplier]) {
+              objBalance[item.id_balance_supplier] = 0;
+            }
+            objBalance[item.id_balance_supplier] -= item.expense;
+            
+            const itemDate = new Date(item.date).getTime();
+            // Изменяем условие, чтобы оно точно соответствовало старому коду
+            if (firstDay < itemDate && item.numb_status !== 5) {
+              profit += item.profit;
+            }
+          }
+        });
+
+        return { data, profit, objBalance };
       }}
     />
   );
