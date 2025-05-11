@@ -3,6 +3,7 @@ import { UniversalEditModal } from '@/shared/ui';
 import { TableSort } from '@/shared/ui/table/table';
 import {
   ActionIcon,
+  Box,
   Button,
   Drawer,
   Flex,
@@ -339,7 +340,9 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   return (
     <>
       {/* Используем additionalBlock для отображения общей информации */}
-      {additionalBlock && calculatedData && additionalBlock(calculatedData)}
+      {additionalBlock && calculatedData && <Box mb={16} >
+        {additionalBlock(calculatedData)}
+      </Box>}
 
       <Flex mb="md" gap={16} direction="column">
         <Group>

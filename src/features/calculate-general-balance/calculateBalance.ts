@@ -49,8 +49,6 @@ export function calculateBalance(operations: any[], filterValues: Record<string,
     date_to
   } = filterValues || {};
 
-  console.log(112, 'test', filterValues)
-
   const cardObj = cards.reduce((acc, card) => ({ ...acc, [card.id_card]: card }), {});
   const typeObj = operationTypes.reduce((acc, type) => ({ ...acc, [type.id_type_operation]: type }), {});
 

@@ -18,6 +18,7 @@ import {
   IconChartBar,
   IconCreditCard,
   IconCurrencyDollar,
+  IconDashboard,
   IconEdit,
   IconFileInvoice,
   IconShield,
@@ -48,6 +49,7 @@ export const tabs: RoleTabs = {
     { link: '/corrections', label: CORRECTION_PAGE_TITLE, icon: IconEdit },
     { link: '/operation-safes', label: OPERATION_SAFE_PAGE_TITLE, icon: IconShield },
     { link: '/analytics-card-balance', label: "Отчет по картам", icon: IconChartBar },
+    { link: '/dashboard', label: "Дашборд", icon: IconDashboard },
   ],
   manager: [
     { link: '/clients', label: CLIENT_PAGE_TITLE, icon: IconUserCircle },
