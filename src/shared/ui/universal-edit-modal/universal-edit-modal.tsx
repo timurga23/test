@@ -48,6 +48,10 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   const { mutateAsync: addMutation } = useAddTableData();
   const { mutateAsync: updateMutation } = useUpdateTableData();
   const { mutateAsync: deleteMutation } = useDeleteTableRow();
+  const { data: versionsData, refetch: refetchVersions } = useTableData('versions');
+  
+  // Сохраняем время начала редактирования в миллисекундах
+  const editStartTime = useMemo(() => Date.now(), [opened]);
 
   // Создаем уникальный список таблиц для запросов
   const uniqueTableNames = useMemo(() => {
@@ -129,6 +133,18 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
   const handleSubmit = async (values: Record<string, any>) => {
     try {
+      // Проверяем версию таблицы перед сохранением
+      if (data) {
+        // Запрашиваем актуальную версию перед сохранением
+        await refetchVersions();
+        const tableVersion = versionsData?.find((v: any) => v.name === tableName);
+
+        if (tableVersion && Number(tableVersion.lastChangeTime) > editStartTime) {
+          toast.error('Данные были изменены другим пользователем. Пожалуйста, обновите страницу.');
+          return;
+        }
+      }
+
       const formattedValues = Object.entries(values).reduce(
         (acc, [key, value]) => {
           const column = formColumns[key];

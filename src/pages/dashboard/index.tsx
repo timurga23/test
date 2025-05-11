@@ -1,8 +1,5 @@
-import { BuyoutLineChart } from "@/widgets/buyout-line-chart/ui/buyout-line-chart";
-import { CargoBarChart } from "@/widgets/cargo-bar-chart/ui/cargo-bar-chart";
-import { CargoLineDeltaChart } from "@/widgets/cargo-line-delta-chart /ui/cargo-line-delta-chart ";
-import { CarrierTable } from "@/widgets/carrier/ui/carrier-table";
-import { PayTargetTable } from "@/widgets/pay-target/ui/pay-target-table";
+import { BuyoutLineChart, CargoBarChart, CargoLineDeltaChart, CarrierTable, PayTargetTable } from "@/widgets";
+
 import { Grid, Stack } from "@mantine/core";
 
 export const DashbordPage = () => {

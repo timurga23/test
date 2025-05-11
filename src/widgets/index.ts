@@ -1,7 +1,11 @@
 export { AuthGuard } from './authGuard/ui/authGuard';
+export { BuyoutLineChart } from './buyout-line-chart/ui/buyout-line-chart';
 export { BuyoutTable } from './buyout-table/ui/buyout-table';
 export { CardTable } from './card-table/ui/card-table';
+export { CargoBarChart } from './cargo-bar-chart/ui/cargo-bar-chart';
+export { CargoLineDeltaChart } from './cargo-line-delta-chart/ui/cargo-line-delta-chart';
 export { CargoTable } from './cargo-table/ui/cargo-table';
+export { CarrierTable } from './carrier/ui/carrier-table';
 export { ClientTable } from './client-table/ui/client-table';
 export { DeliveryBlock } from './delivery-block/ui/delivery-block';
 export { EmployerTable } from './employer-table/ui/employer-table';
@@ -10,5 +14,7 @@ export { NavbarSegmented } from './menu/ui/menu';
 export { OperationCardTable } from './operation-card-table/ui/operation-card-table';
 export { OperationSafeTable } from './operation-safe-table/ui/operation-safe-table';
 export { OrderTable } from './order-table/ui/order-table';
+export { PayTargetTable } from './pay-target/ui/pay-target-table';
 export { PositionTable } from './position-table/ui/position-table';
 export { Torg12Table } from './torg-12-table/ui/torg-12-table';
+
