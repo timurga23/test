@@ -1,13 +1,36 @@
 import { Card, CARD_COLUMNS, CARD_TABLE_NAME } from '@/entities/card';
 import { CARD_FORM_COLUMNS } from '@/entities/card/model/form-columns';
 import { CrudTable } from '@/shared/ui';
+import { formatAmount } from '../../../shared/lib/helpers/formatAmount';
 import { NormalizedCard } from '../model/types';
+
+function calculateCardBalance(id_card, operations, operationTypes) {
+    // Создаем объект для быстрого доступа к типам операций
+    const typeMap = {};
+    operationTypes.forEach(type => {
+        typeMap[type.id_type_operation] = type.plus;
+    });
+
+    // Фильтруем операции по карте и суммируем их
+    let total = 0;
+    operations
+        .filter(op => op.id_card === id_card)
+        .forEach(op => {
+            const isIncome = typeMap[op.id_type_operation];
+            const amount = op.summ / Math.pow(10, op.point_summ);
+            total += isIncome ? amount : -amount;
+        });
+
+    return total;
+}
 
 const normalizeData = (
   cards: Card[],
   relations: {
     bank: any[];
     employee: any[];
+    operation_card: any[];
+    type_operation: any[];
   }
 ): NormalizedCard[] => {
 
@@ -17,6 +40,8 @@ const normalizeData = (
       (emp) => emp.id_employee === card.id_employee
     );
 
+    // Расчет баланса для каждой карты
+    const balance = calculateCardBalance(card.id_card, relations.operation_card, relations.type_operation);
 
     return {
       ...card,
@@ -24,6 +49,7 @@ const normalizeData = (
       employee: employee
         ? `${employee.last_name} ${employee.first_name}`
         : '',
+      balance: formatAmount(balance),
     };
   });
 };
@@ -60,6 +86,18 @@ export const CardTable = () => {
           employee: {
             tableName: 'employee',
             foreignKey: 'id_employee',
+            displayField: 'name'
+          },
+          // @ts-ignore
+           operation_card: {
+            tableName: 'operation_card',
+            foreignKey: 'id_card',
+            displayField: 'name'
+          },
+          // @ts-ignore
+          type_operation: {
+            tableName: 'type_operation',
+            foreignKey: 'id_type_operation',
             displayField: 'name'
           }
         }}

@@ -50,10 +50,10 @@ export const CARD_COLUMNS: ITableColumn<NormalizedCard>[] = [
     render: (row) => (row.blocking ? 'Да' : 'Нет'),
   },
   {
-    key: 'card_limit',
+    key: 'balance',
     label: 'Баланс',
     sortable: true,
     width: '120',
-    render: (row) => `${row.card_limit?.toLocaleString() ?? 0} ₽`,
+    render: (row) => `${row.balance?.toLocaleString() ?? 0} ₽`,
   },
 ];
