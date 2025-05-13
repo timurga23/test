@@ -76,6 +76,7 @@ export const OperationCardTable = () => {
       formColumns={OPERATION_CARD_FORM_COLUMNS}
       idField="id_operation_card"
       normalizeData={normalizeData}
+      autoNumberFields={['numb_operation_card']}
       relations={{
         // @ts-ignore
         card: {

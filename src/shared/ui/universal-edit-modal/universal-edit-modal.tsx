@@ -326,7 +326,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
               row: [
                 { column: through.relationKey, value: recordId },
                 { column: 'value', value: contactValue },
-                { column: 'id_type_contact', value: '741d4b84-9cf5-4110-b137-4bcd3c8b40e0' }, // TODO: change to default value
+                { column: 'id_type_contact', value: '32607bfc-2894-4e01-89e4-9b47c9ad52b3' }, // TODO: change to default value
               ],
             })),
           });

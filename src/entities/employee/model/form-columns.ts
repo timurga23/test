@@ -46,9 +46,14 @@ export const EMPLOYEE_FORM_COLUMNS = {
     nullable: true,
     label: 'Замещающий сотрудник',
     fieldType: 'select',
+    relation: {
+      table: 'employee',
+      value: 'id_employee',
+      label: 'name',
+    },
   },
   positions: {
-    type: 'ARRAY', // Мультиселект для должностей
+    type: 'UUID', 
     nullable: true,
     label: 'Должности',
     fieldType: 'multiselect',
@@ -56,6 +61,11 @@ export const EMPLOYEE_FORM_COLUMNS = {
       table: 'position',
       value: 'id_position',
       label: 'name',
+      through: {
+        table: 'employee_positions',
+        foreignKey: 'id_position',
+        relationKey: 'id_employee',
+      },
     },
   },
 }; 

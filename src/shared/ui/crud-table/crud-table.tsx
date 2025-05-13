@@ -50,6 +50,7 @@ interface CrudTableProps<T, N> {
   calculateData?: (data: T[], filterValues: Record<string, any>) => any;
   isEditable?: boolean;
   autoNumberFields?: string[];
+  isWithoutAutoNumberFields?: boolean;
 }
 
 // Добавим вспомогательные функции для работы с датами
@@ -84,6 +85,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   calculateData,
   isEditable = true,
   autoNumberFields = [],
+  isWithoutAutoNumberFields = false,
 }: CrudTableProps<T, N>) => {
   const [selected, setSelected] = useState<N | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -188,8 +190,8 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
       result = result.filter((item) => {
         return searchableColumns.some((column) => {
           // @ts-ignore
-          const value = String(item[column] || '').toLowerCase();
-          return value.includes(searchQuery.toLowerCase());
+          const value = String(item[column] || '')?.toLowerCase();
+          return value.includes(searchQuery?.toLowerCase());
         });
       });
     }
@@ -329,7 +331,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     relations: formRelations,
     tableData: data,
     modalSize,
-    autoNumberFields: autoNumberFields?.length ? autoNumberFields : defaultAutoNumberFields,
+    autoNumberFields: autoNumberFields?.length || isWithoutAutoNumberFields ? autoNumberFields : defaultAutoNumberFields,
   };
 
   // Вычисляем общие данные, если передан calculateData

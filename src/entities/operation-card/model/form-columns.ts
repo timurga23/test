@@ -27,12 +27,12 @@ export const OPERATION_CARD_FORM_COLUMNS = {
     fieldType: 'date',
   },
   summ: {
-    type: 'BIG_INTEGER',
+    type: 'INTEGER',
     label: 'Сумма',
     fieldType: 'number',
   },
   point_summ: {
-    type: 'BIG_INTEGER',
+    type: 'INTEGER',
     label: 'Баллы',
     fieldType: 'number',
   },

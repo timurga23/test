@@ -31,10 +31,19 @@ export const EmployerTable = () => {
         )
         .join(', ');
 
+      const positions = employeePositions.map((ep) => {
+        const position = relations.position?.find((p) => p.id_position === ep.id_position);
+        return {
+          id_position: ep.id_position,
+          name: position?.name || '',
+        };
+      });
+
       return {
         ...employee,
         fullName: `${employee.last_name} ${employee.first_name?.charAt(0)}. ${employee.middle_name?.charAt(0)}.`,
         position: positionNames,
+        positions,
       };
     });
   };
@@ -53,6 +62,18 @@ export const EmployerTable = () => {
           tableName: EMPLOYEE_POSITION,
           valueField: 'id_position',
           labelField: 'name',
+        },
+        // @ts-ignore
+        employee_positions: {
+          tableName: 'employee_positions',
+          valueField: 'id_employee',
+          labelField: 'id_position',
+        },
+        // @ts-ignore
+        'id_employee_replacement': {
+          tableName: 'employee',
+          valueField: 'id_employee',
+          labelField: 'last_name',
         },
       }}
       relations={{
