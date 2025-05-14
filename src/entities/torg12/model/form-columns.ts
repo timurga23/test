@@ -58,16 +58,37 @@ export const TORG12_FORM_COLUMNS = {
     type: 'TEXT',
     nullable: true,
     label: 'Статус',
-  },
+  }, // todo: сделать статусы в виде select
   id_card: {
     type: 'UUID',
     nullable: true,
     label: 'Назначение',
     fieldType: 'select',
     relation: {
-      table: 'card',
+      table: ['card', 'balance'], // Теперь указываем массив таблиц
       value: 'id_card',
-      label: 'purpose',
+      label: 'name',
+      prefix: 'Карта:',
+      // Добавляем связанное поле
+      linkedField: {
+        prefix: 'Баланс:',
+        table: 'balance',
+        value: 'id_balance',
+        label: 'name',
+        mapping: 'id_balance' // Поле из таблицы balance, которое нужно использовать
+      }
+    },
+  },
+  id_balance: {
+    type: 'UUID',
+    nullable: true,
+    label: 'баланс',
+    fieldType: 'select',
+    hidden: true, 
+    relation: {
+      table: 'balance',
+      value: 'id_balance',
+      label: 'name',
     },
   },
 };

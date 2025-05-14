@@ -35,7 +35,7 @@ export const TORG12_TABLE_FORM_RELATIONS = {
   id_card: {
     tableName: 'card',
     valueField: 'id_card',
-    labelField: 'purpose',
+    labelField: 'name',
   },
   status: {
     tableName: 'status',

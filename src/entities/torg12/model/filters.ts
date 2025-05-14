@@ -27,7 +27,6 @@ export const TORG12_FILTERS: Filter[] = [
         label: item.name,
       })) || [],
   },
-  // todo
   {
     type: 'select',
     field: 'purpose',

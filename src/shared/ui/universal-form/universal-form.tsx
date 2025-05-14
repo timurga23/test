@@ -67,6 +67,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
     control,
     handleSubmit,
     formState: { isDirty },
+    getValues,
   } = useForm<FormValues<T>>({
     // @ts-ignore
     defaultValues,
@@ -101,7 +102,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
       <Stack gap="md">
         {/* Основные поля */}
         {Object.entries(columns)
-          .filter(([_, column]) => !column?.group)
+          .filter(([_, column]) => !column?.group && !column?.hidden)
           .map(([key, column]) => (
             <Controller<FormValues<T>>
               key={key}
@@ -167,6 +168,7 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                       />
                     );
                   case 'UUID':
+
                     if (column?.fieldType === 'multiselect' && column.options) {
                       const value =
                         Array.isArray(field.value) &&
@@ -216,10 +218,12 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                       );
                     }
 
+                    const linkedValue = getValues()[column?.relation?.linkedField?.mapping]
+
                     const value =
                       column.options?.find(
-                        (option) => option.label === field.value || option.value === field.value
-                      )?.value ?? null;
+                        (option) => (option.label === field.value || option.value === field.value) || (option.label === linkedValue || option.value === linkedValue)
+                      )?.value || null;
 
                     return (
                       <Select

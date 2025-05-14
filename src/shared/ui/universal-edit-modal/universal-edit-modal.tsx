@@ -28,6 +28,7 @@ interface UniversalEditModalProps<T = any> {
   modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
   autoNumberFields?: string[];
   tableData: T[];
+  relationsData: Record<string, any[]>;
 }
 
 const RELATION_FIELDS = ['positions', 'select', 'multiselect', 'dynamic-inputs'];
@@ -44,6 +45,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   modalSize = 'lg',
   autoNumberFields = [],
   tableData,
+  relationsData,
 }: UniversalEditModalProps<T>) => {
   const { mutateAsync: addMutation } = useAddTableData();
   const { mutateAsync: updateMutation } = useUpdateTableData();
@@ -71,15 +73,6 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     return Array.from(tables);
   }, [formColumns, relations]);
 
-  // Создаем один объект с данными всех таблиц
-  const relationsData = uniqueTableNames.reduce(
-    (acc, name) => {
-      const { data: tableData } = useTableData(name);
-      acc[name] = tableData || [];
-      return acc;
-    },
-    {} as Record<string, any[]>
-  );
 
   // Мемоизируем обновленные колонки формы
   const updatedFormColumns = useMemo(() => {
@@ -88,7 +81,30 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     for (const fieldName in newFormColumns) {
       const column = newFormColumns[fieldName];
 
-      if (column?.fieldType === 'select' && relations[fieldName]) {
+
+      if (column?.fieldType === 'select' && Array.isArray(column.relation.table)) {
+        let allOptions: any[] = [];
+        column.relation.table.forEach((tableName: string) => {
+          const tableData = relationsData[tableName];
+          if (tableData) {
+            const target = column.relation.linkedField?.table === tableName ? column.relation.linkedField : column.relation;
+            allOptions = allOptions.concat(
+              tableData.map((item: any) => ({
+                value: item[target.value],
+                label: `${target.prefix} ${item[target.label]}`,
+                table: tableName,
+              }))
+            );
+          }
+        });
+        if (allOptions.length > 0) {
+          newFormColumns[fieldName] = {
+            ...column,
+            options: allOptions,
+          };
+        }
+
+      } else if (column?.fieldType === 'select' && relations[fieldName]) {
         const { tableName, valueField, labelField } = relations[fieldName];
         const tableData = relationsData[tableName];
 
@@ -125,7 +141,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
             defaultValue: selectedValues,
           };
         }
-      }
+      } 
     }
 
     return newFormColumns;
@@ -149,9 +165,49 @@ export const UniversalEditModal = <T extends Record<string, any>>({
         (acc, [key, value]) => {
           const column = formColumns[key];
 
-          // Пропускаем поля с through отношениями (и select, и multiselect)
+          // Пропускаем поля с through отношениями
           if (RELATION_FIELDS.includes(column?.fieldType) && column?.relation?.through) {
             return acc;
+          }
+
+          const isLinkedField = column?.fieldType === 'select' && column?.relation?.linkedField
+
+
+          // Обработка связанных полей
+          if (isLinkedField) {
+
+              const key = column.relation.value;
+              const options = updatedFormColumns[key].options;
+              const table = options.find((option: any) => option.value === value).table;
+              const targetKey = `id_${table}`;
+
+              if (key === targetKey) {
+                acc[key] = null;
+                acc[targetKey] = value;
+              } else {
+                acc[targetKey] = value;
+                acc[key] = null;
+              }
+
+
+            // if (value && typeof value === 'object' && 'table' in value) {
+
+            //   const { table: selectedTable, value: selectedValue } = value;
+            //   const { table: configTables, linkedField } = column.relation;
+              
+            //   // Получаем массив таблиц из конфигурации
+            //   const tables = Array.isArray(configTables) ? configTables : [configTables];
+              
+            //   // Определяем, в какое поле записывать значение
+            //   if (selectedTable === tables[0]) {
+            //     acc[key] = selectedValue; // Записываем в основное поле
+            //     acc[linkedField.mapping] = null; // Очищаем связанное поле
+            //   } else {
+            //     acc[key] = null; // Очищаем основное поле
+            //     acc[linkedField.mapping] = selectedValue; // Записываем в связанное поле
+            //   }
+            //   return acc;
+            // }
           }
 
           if (key === 'delivery') {
@@ -166,13 +222,20 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
           if (key?.toLowerCase().includes('date')) {
             acc[key] = formatDateForServer(value);
-          } else if (key !== 'delivery') {
+          } else if (key !== 'delivery' && acc[key] === undefined) {
             acc[key] = value;
           }
           return acc;
         },
         {} as Record<string, any>
       );
+
+      // Удаляем undefined значения перед отправкой
+      Object.keys(formattedValues).forEach(key => {
+        if (formattedValues[key] === undefined) {
+          delete formattedValues[key];
+        }
+      });
 
       if (!data) {
         // Используем переданные данные таблицы вместо нового запроса
@@ -206,6 +269,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
         toast.success('Запись добавлена');
       } else {
+
         const rows = Object.entries(formattedValues)
           .filter(([key, value]) => value !== data[key])
           .map(([column, value]) => ({
@@ -372,6 +436,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
               .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})}
             defaultValues={data}
             onSubmit={handleSubmit}
+            relationsData={relationsData}
           />
         </Grid.Col>
 

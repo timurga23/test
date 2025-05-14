@@ -329,6 +329,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     formColumns,
     idField,
     relations: formRelations,
+    relationsData,
     tableData: data,
     modalSize,
     autoNumberFields: autoNumberFields?.length || isWithoutAutoNumberFields ? autoNumberFields : defaultAutoNumberFields,
