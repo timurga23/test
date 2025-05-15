@@ -2,6 +2,7 @@ import {
   NormalizedOperationSafe,
   OPERATION_SAFE_COLUMNS,
   OPERATION_SAFE_FORM_COLUMNS,
+  OPERATION_SAFE_TABLE_NAME,
   OperationSafe,
 } from '@/entities/operation_safe';
 import { CrudTable } from '@/shared/ui';
@@ -68,7 +69,7 @@ export const OperationSafeTable = () => {
 
   return (
     <CrudTable<OperationSafe, NormalizedOperationSafe>
-      tableName="operation_safe"
+      tableName={OPERATION_SAFE_TABLE_NAME}
       columns={OPERATION_SAFE_COLUMNS}
       formColumns={OPERATION_SAFE_FORM_COLUMNS}
       idField="id_operation_safe"
@@ -85,6 +86,7 @@ export const OperationSafeTable = () => {
       quickFilters={createOperationSafeQuickFilters}
       // @ts-ignore
       quickFilterRelation={OPERATION_SAFE_TABLE_QUICK_FILTER_RELATION}
+      isWithoutAutoNumberFields
     />
   );
 };

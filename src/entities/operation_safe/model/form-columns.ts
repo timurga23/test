@@ -24,7 +24,7 @@ export const OPERATION_SAFE_FORM_COLUMNS = {
   id_direction_safe: {
     type: 'UUID',
     nullable: true,
-    label: 'Связь',
+    label: 'Назначение',
     fieldType: 'select',
     relation: {
       table: 'direction_safe',

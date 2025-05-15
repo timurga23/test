@@ -33,15 +33,15 @@ export const CORRECTION_FORM_COLUMNS = {
       label: 'name',
     },
   },
-  id_card: {
-    type: 'UUID',
-    nullable: true,
-    label: 'Карта',
-    fieldType: 'select',
-    relation: {
-      table: 'card',
-      value: 'id_card',
-      label: 'name',
-    },
-  },
+  // id_card: {
+  //   type: 'UUID',
+  //   nullable: true,
+  //   label: 'Карта',
+  //   fieldType: 'select',
+  //   relation: {
+  //     table: 'card',
+  //     value: 'id_card',
+  //     label: 'name',
+  //   },
+  // },
 };
