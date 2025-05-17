@@ -168,7 +168,6 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                       />
                     );
                   case 'UUID':
-
                     if (column?.fieldType === 'multiselect' && column.options) {
                       const value =
                         Array.isArray(field.value) &&
@@ -218,11 +217,15 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                       );
                     }
 
-                    const linkedValue = getValues()[column?.relation?.linkedField?.mapping]
+                    const linkedValue = getValues()[column?.relation?.linkedField?.mapping];
 
                     const value =
                       column.options?.find(
-                        (option) => (option.label === field.value || option.value === field.value) || (option.label === linkedValue || option.value === linkedValue)
+                        (option) =>
+                          option.label === field.value ||
+                          option.value === field.value ||
+                          option.label === linkedValue ||
+                          option.value === linkedValue
                       )?.value || null;
 
                     return (

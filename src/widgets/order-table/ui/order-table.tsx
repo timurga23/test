@@ -14,6 +14,7 @@ export const OrderTable = () => {
       client: any[];
       status: any[];
       positions_order: any[];
+      employee: any[];
     }
   ): NormalizedOrder[] => {
     // @ts-ignore
@@ -61,6 +62,7 @@ export const OrderTable = () => {
       formColumns={ORDER_FORM_COLUMNS}
       idField="id_order"
       normalizeData={normalizeData}
+      isShowAddButton={false}
       relations={{
         // @ts-ignore
         client: {
@@ -91,6 +93,11 @@ export const OrderTable = () => {
           tableName: 'status',
           valueField: 'id_status',
           labelField: 'name',
+        },
+        id_employee: {
+          tableName: 'employee',
+          valueField: 'id_employee',
+          labelField: 'last_name',
         },
       }}
       modalSize="xxl"

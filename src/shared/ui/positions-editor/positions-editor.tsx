@@ -79,6 +79,7 @@ export const PositionsEditor = ({ value = [], onChange, orderId }: PositionsEdit
     return <AddButton />;
   }
 
+  // todo point values
   return (
     <Stack>
       <Table>
@@ -154,33 +155,33 @@ export const PositionsEditor = ({ value = [], onChange, orderId }: PositionsEdit
               </Table.Td>
               <Table.Td>
                 <NumberInput
-                  value={position.point_cargo}
-                  onChange={(value) => handleChange(index, 'point_cargo', value)}
+                  value={position.cargo}
+                  onChange={(value) => handleChange(index, 'cargo', value)}
                   min={0}
                 />
               </Table.Td>
               <Table.Td>
-                <Text>{position.point_cargo * position.quantity}</Text>
+                <Text>{position.cargo * position.quantity}</Text>
               </Table.Td>
               <Table.Td>
                 <NumberInput
-                  value={position.point_weight}
-                  onChange={(value) => handleChange(index, 'point_weight', value)}
+                  value={position.weight}
+                  onChange={(value) => handleChange(index, 'weight', value)}
                   min={0}
                 />
               </Table.Td>
               <Table.Td>
-                <Text>{position.point_weight * position.quantity}</Text>
+                <Text>{position.weight * position.quantity}</Text>
               </Table.Td>
               <Table.Td>
                 <NumberInput
-                  value={position.point_volume}
-                  onChange={(value) => handleChange(index, 'point_volume', value)}
+                  value={position.volume}
+                  onChange={(value) => handleChange(index, 'volume', value)}
                   min={0}
                 />
               </Table.Td>
               <Table.Td>
-                <Text>{(position.point_volume * position.quantity).toFixed(3)}</Text>
+                <Text>{(position.volume * position.quantity).toFixed(3)}</Text>
               </Table.Td>
               <Table.Td>
                 <ActionIcon color="red" onClick={() => handleRemove(index)}>

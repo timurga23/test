@@ -27,7 +27,6 @@ interface CrudTableProps<T, N> {
   relations?: {
     [key: string]: string;
   };
-  showAddButton?: boolean;
   // Опциональный кастомный компонент модального окна
   CustomEditModal?: React.ComponentType<any>;
   itemsPerPage?: number;
@@ -38,7 +37,6 @@ interface CrudTableProps<T, N> {
       labelField: string;
     };
   };
-  isSearchable?: boolean;
   searchableColumns?: string[]; // Колонки, по которым будет осуществляться поиск
   filters?: Filter[]; // Добавляем пропс для фильтров
   modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
@@ -48,8 +46,10 @@ interface CrudTableProps<T, N> {
   };
   additionalBlock?: (calculatedData: any) => React.ReactNode;
   calculateData?: (data: T[], filterValues: Record<string, any>) => any;
-  isEditable?: boolean;
   autoNumberFields?: string[];
+  isShowAddButton?: boolean;
+  isSearchable?: boolean;
+  isEditable?: boolean;
   isWithoutAutoNumberFields?: boolean;
 }
 
@@ -71,7 +71,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   idField,
   normalizeData,
   relations = {},
-  showAddButton = true,
+  isShowAddButton = true,
   CustomEditModal,
   itemsPerPage = 17,
   formRelations = {},
@@ -389,7 +389,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
               Фильтры
             </Button>
           )}
-          {showAddButton && isEditable && (
+          {isShowAddButton && isEditable && (
             <ActionIcon variant="filled" color="blue" onClick={handleAdd} size="lg">
               <IconPlus size={20} />
             </ActionIcon>

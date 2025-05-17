@@ -53,7 +53,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   const { data: versionsData, refetch: refetchVersions } = useTableData('versions');
 
   // Сохраняем время начала редактирования в миллисекундах
-  const editStartTime = useMemo(() => Date.now(), [opened]);
+  let editStartTime = useMemo(() => Date.now(), [opened]);
 
   // Мемоизируем обновленные колонки формы
   const updatedFormColumns = useMemo(() => {
@@ -137,7 +137,10 @@ export const UniversalEditModal = <T extends Record<string, any>>({
         await refetchVersions();
         const tableVersion = versionsData?.find((v: any) => v.name === tableName);
 
+        // Проверяем, что версия существует и время изменения больше времени начала редактирования
         if (tableVersion && Number(tableVersion.lastChangeTime) > editStartTime) {
+          // Обновляем время начала редактирования для следующей попытки
+          editStartTime = Date.now();
           toast.error('Данные были изменены другим пользователем. Пожалуйста, обновите страницу.');
           return;
         }
@@ -290,62 +293,88 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
       const { through } = column.relation;
 
-      const isAddMultiselect =
-        column?.fieldType === 'multiselect' &&
-        Array.isArray(value) &&
-        value.length > 0 &&
-        !value?.some((item: any) => !item);
-
-      const isAddSelect = column?.fieldType === 'select' && value;
-
-      const isAddDynamicInputs = column?.fieldType === 'dynamic-inputs' && value;
-
-      // Сначала удаляем все существующие связи
-      await deleteMutation({
-        tableName: through.table,
-        data: [{ column: through.relationKey, value: recordId }],
-      });
-
-      // Добавляем новые связи
-      if (isAddMultiselect) {
-        // Для multiselect добавляем все выбранные значения
-        await addMutation({
+      if (column.fieldType === 'positions') {
+        // Удаляем старые позиции
+        await deleteMutation({
           tableName: through.table,
-          // @ts-ignore
-          data: value.map((foreignId) => ({
-            row: [
-              { column: through.relationKey, value: recordId },
-              { column: through.foreignKey, value: foreignId },
-            ],
-          })),
+          data: [{ column: through.relationKey, value: recordId }],
         });
-      } else if (isAddSelect) {
-        // Для select добавляем одно значение
-        await addMutation({
+
+        // Добавляем новые позиции
+        if (Array.isArray(value) && value.length > 0) {
+          await addMutation({
+            tableName: through.table,
+            // @ts-ignore
+            data: value.map((position) => ({
+              row: [
+                ...Object.entries(position)
+                  .filter(([column]) => column !== 'id_position')
+                  .map(([column, value]) => ({
+                    column,
+                    value,
+                  })),
+              ],
+            })),
+          });
+        }
+      } else {
+        const isAddMultiselect =
+          column?.fieldType === 'multiselect' &&
+          Array.isArray(value) &&
+          value.length > 0 &&
+          !value?.some((item: any) => !item);
+
+        const isAddSelect = column?.fieldType === 'select' && value;
+
+        const isAddDynamicInputs = column?.fieldType === 'dynamic-inputs' && value;
+
+        // Сначала удаляем все существующие связи
+        await deleteMutation({
           tableName: through.table,
-          data: [
-            {
-              // @ts-ignore
+          data: [{ column: through.relationKey, value: recordId }],
+        });
+
+        // Добавляем новые связи
+        if (isAddMultiselect) {
+          // Для multiselect добавляем все выбранные значения
+          await addMutation({
+            tableName: through.table,
+            // @ts-ignore
+            data: value.map((foreignId) => ({
               row: [
                 { column: through.relationKey, value: recordId },
-                { column: through.foreignKey, value: value },
+                { column: through.foreignKey, value: foreignId },
               ],
-            },
-          ],
-        });
-      } else if (isAddDynamicInputs) {
-        // Для dynamic-inputs добавляем все выбранные значения
-        await addMutation({
-          tableName: through.table,
-          // @ts-ignore
-          data: value.map((contactValue) => ({
-            row: [
-              { column: through.relationKey, value: recordId },
-              { column: 'value', value: contactValue },
-              { column: 'id_type_contact', value: '32607bfc-2894-4e01-89e4-9b47c9ad52b3' }, // TODO: change to default value
+            })),
+          });
+        } else if (isAddSelect) {
+          // Для select добавляем одно значение
+          await addMutation({
+            tableName: through.table,
+            data: [
+              {
+                // @ts-ignore
+                row: [
+                  { column: through.relationKey, value: recordId },
+                  { column: through.foreignKey, value: value },
+                ],
+              },
             ],
-          })),
-        });
+          });
+        } else if (isAddDynamicInputs) {
+          // Для dynamic-inputs добавляем все выбранные значения
+          await addMutation({
+            tableName: through.table,
+            // @ts-ignore
+            data: value.map((contactValue) => ({
+              row: [
+                { column: through.relationKey, value: recordId },
+                { column: 'value', value: contactValue },
+                { column: 'id_type_contact', value: '32607bfc-2894-4e01-89e4-9b47c9ad52b3' }, // TODO: change to default value
+              ],
+            })),
+          });
+        }
       }
     }
   };
