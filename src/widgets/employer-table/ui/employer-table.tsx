@@ -4,17 +4,10 @@ import {
   EMPLOYEE_FORM_COLUMNS,
   EMPLOYEE_POSITION,
   EMPLOYEE_TABLE_NAME,
-  EmployeePosition,
   NormalizedEmployee,
-  Position,
+  POSITION_TABLE_NAME,
 } from '@/entities';
 import { CrudTable } from '@/shared/ui';
-
-type TProps = {
-  employees: Employee[];
-  positions: Position[];
-  employeePositions: EmployeePosition[];
-};
 
 export const EmployerTable = () => {
   const normalizeData = (
@@ -59,19 +52,19 @@ export const EmployerTable = () => {
       formRelations={{
         // @ts-ignore
         position: {
-          tableName: EMPLOYEE_POSITION,
+          tableName: POSITION_TABLE_NAME,
           valueField: 'id_position',
           labelField: 'name',
         },
         // @ts-ignore
         employee_positions: {
-          tableName: 'employee_positions',
+          tableName: EMPLOYEE_POSITION,
           valueField: 'id_employee',
           labelField: 'id_position',
         },
         // @ts-ignore
-        'id_employee_replacement': {
-          tableName: 'employee',
+        id_employee_replacement: {
+          tableName: EMPLOYEE_TABLE_NAME,
           valueField: 'id_employee',
           labelField: 'last_name',
         },

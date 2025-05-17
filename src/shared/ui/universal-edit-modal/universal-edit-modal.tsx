@@ -51,28 +51,9 @@ export const UniversalEditModal = <T extends Record<string, any>>({
   const { mutateAsync: updateMutation } = useUpdateTableData();
   const { mutateAsync: deleteMutation } = useDeleteTableRow();
   const { data: versionsData, refetch: refetchVersions } = useTableData('versions');
-  
+
   // Сохраняем время начала редактирования в миллисекундах
   const editStartTime = useMemo(() => Date.now(), [opened]);
-
-  // Создаем уникальный список таблиц для запросов
-  const uniqueTableNames = useMemo(() => {
-    const tables = new Set<string>();
-
-    Object.entries(formColumns).forEach(([key, column]) => {
-      if (column?.fieldType === 'select' && relations[key]) {
-        tables.add(relations[key].tableName);
-      } else if (column?.fieldType === 'multiselect' && column?.relation) {
-        tables.add(column?.relation?.table);
-        if (column?.relation?.through) {
-          tables.add(column?.relation?.through?.table);
-        }
-      }
-    });
-
-    return Array.from(tables);
-  }, [formColumns, relations]);
-
 
   // Мемоизируем обновленные колонки формы
   const updatedFormColumns = useMemo(() => {
@@ -81,13 +62,15 @@ export const UniversalEditModal = <T extends Record<string, any>>({
     for (const fieldName in newFormColumns) {
       const column = newFormColumns[fieldName];
 
-
       if (column?.fieldType === 'select' && Array.isArray(column.relation.table)) {
         let allOptions: any[] = [];
         column.relation.table.forEach((tableName: string) => {
           const tableData = relationsData[tableName];
           if (tableData) {
-            const target = column.relation.linkedField?.table === tableName ? column.relation.linkedField : column.relation;
+            const target =
+              column.relation.linkedField?.table === tableName
+                ? column.relation.linkedField
+                : column.relation;
             allOptions = allOptions.concat(
               tableData.map((item: any) => ({
                 value: item[target.value],
@@ -103,7 +86,6 @@ export const UniversalEditModal = <T extends Record<string, any>>({
             options: allOptions,
           };
         }
-
       } else if (column?.fieldType === 'select' && relations[fieldName]) {
         const { tableName, valueField, labelField } = relations[fieldName];
         const tableData = relationsData[tableName];
@@ -141,7 +123,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
             defaultValue: selectedValues,
           };
         }
-      } 
+      }
     }
 
     return newFormColumns;
@@ -170,34 +152,31 @@ export const UniversalEditModal = <T extends Record<string, any>>({
             return acc;
           }
 
-          const isLinkedField = column?.fieldType === 'select' && column?.relation?.linkedField
-
+          const isLinkedField = column?.fieldType === 'select' && column?.relation?.linkedField;
 
           // Обработка связанных полей
           if (isLinkedField) {
+            const key = column.relation.value;
+            const options = updatedFormColumns[key].options;
+            const table = options.find((option: any) => option.value === value).table;
+            const targetKey = `id_${table}`;
 
-              const key = column.relation.value;
-              const options = updatedFormColumns[key].options;
-              const table = options.find((option: any) => option.value === value).table;
-              const targetKey = `id_${table}`;
-
-              if (key === targetKey) {
-                acc[key] = null;
-                acc[targetKey] = value;
-              } else {
-                acc[targetKey] = value;
-                acc[key] = null;
-              }
-
+            if (key === targetKey) {
+              acc[key] = null;
+              acc[targetKey] = value;
+            } else {
+              acc[targetKey] = value;
+              acc[key] = null;
+            }
 
             // if (value && typeof value === 'object' && 'table' in value) {
 
             //   const { table: selectedTable, value: selectedValue } = value;
             //   const { table: configTables, linkedField } = column.relation;
-              
+
             //   // Получаем массив таблиц из конфигурации
             //   const tables = Array.isArray(configTables) ? configTables : [configTables];
-              
+
             //   // Определяем, в какое поле записывать значение
             //   if (selectedTable === tables[0]) {
             //     acc[key] = selectedValue; // Записываем в основное поле
@@ -231,7 +210,7 @@ export const UniversalEditModal = <T extends Record<string, any>>({
       );
 
       // Удаляем undefined значения перед отправкой
-      Object.keys(formattedValues).forEach(key => {
+      Object.keys(formattedValues).forEach((key) => {
         if (formattedValues[key] === undefined) {
           delete formattedValues[key];
         }
@@ -269,7 +248,6 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
         toast.success('Запись добавлена');
       } else {
-
         const rows = Object.entries(formattedValues)
           .filter(([key, value]) => value !== data[key])
           .map(([column, value]) => ({
@@ -312,89 +290,62 @@ export const UniversalEditModal = <T extends Record<string, any>>({
 
       const { through } = column.relation;
 
-      if (column.fieldType === 'positions') {
-        // Удаляем старые позиции
-        await deleteMutation({
+      const isAddMultiselect =
+        column?.fieldType === 'multiselect' &&
+        Array.isArray(value) &&
+        value.length > 0 &&
+        !value?.some((item: any) => !item);
+
+      const isAddSelect = column?.fieldType === 'select' && value;
+
+      const isAddDynamicInputs = column?.fieldType === 'dynamic-inputs' && value;
+
+      // Сначала удаляем все существующие связи
+      await deleteMutation({
+        tableName: through.table,
+        data: [{ column: through.relationKey, value: recordId }],
+      });
+
+      // Добавляем новые связи
+      if (isAddMultiselect) {
+        // Для multiselect добавляем все выбранные значения
+        await addMutation({
           tableName: through.table,
-          data: [{ column: through.relationKey, value: recordId }],
-        });
-
-        // Добавляем новые позиции
-        if (Array.isArray(value) && value.length > 0) {
-          await addMutation({
-            tableName: through.table,
-            // @ts-ignore
-            data: value.map((position) => ({
-              row: [
-                ...Object.entries(position).map(([column, value]) => ({
-                  column,
-                  value,
-                })),
-                { column: idField, value: recordId },
-              ],
-            })),
-          });
-        }
-      } else {
-        const isAddMultiselect =
-          column?.fieldType === 'multiselect' &&
-          Array.isArray(value) &&
-          value.length > 0 &&
-          !value?.some((item: any) => !item);
-
-        const isAddSelect = column?.fieldType === 'select' && value;
-
-        const isAddDynamicInputs = column?.fieldType === 'dynamic-inputs' && value;
-
-        if (isAddSelect || isAddMultiselect || isAddDynamicInputs) {
-          // Сначала удаляем все существующие связи
-          await deleteMutation({
-            tableName: through.table,
-            data: [{ column: through.relationKey, value: recordId }],
-          });
-        }
-
-        // Добавляем новые связи
-        if (isAddMultiselect) {
-          // Для multiselect добавляем все выбранные значения
-          await addMutation({
-            tableName: through.table,
-            // @ts-ignore
-            data: value.map((foreignId) => ({
-              row: [
-                { column: through.relationKey, value: recordId },
-                { column: through.foreignKey, value: foreignId },
-              ],
-            })),
-          });
-        } else if (isAddSelect) {
-          // Для select добавляем одно значение
-          await addMutation({
-            tableName: through.table,
-            data: [
-              {
-                // @ts-ignore
-                row: [
-                  { column: through.relationKey, value: recordId },
-                  { column: through.foreignKey, value: value },
-                ],
-              },
+          // @ts-ignore
+          data: value.map((foreignId) => ({
+            row: [
+              { column: through.relationKey, value: recordId },
+              { column: through.foreignKey, value: foreignId },
             ],
-          });
-        } else if (isAddDynamicInputs) {
-          // Для dynamic-inputs добавляем все выбранные значения
-          await addMutation({
-            tableName: through.table,
-            // @ts-ignore
-            data: value.map((contactValue) => ({
+          })),
+        });
+      } else if (isAddSelect) {
+        // Для select добавляем одно значение
+        await addMutation({
+          tableName: through.table,
+          data: [
+            {
+              // @ts-ignore
               row: [
                 { column: through.relationKey, value: recordId },
-                { column: 'value', value: contactValue },
-                { column: 'id_type_contact', value: '32607bfc-2894-4e01-89e4-9b47c9ad52b3' }, // TODO: change to default value
+                { column: through.foreignKey, value: value },
               ],
-            })),
-          });
-        }
+            },
+          ],
+        });
+      } else if (isAddDynamicInputs) {
+        // Для dynamic-inputs добавляем все выбранные значения
+        await addMutation({
+          tableName: through.table,
+          // @ts-ignore
+          data: value.map((contactValue) => ({
+            row: [
+              { column: through.relationKey, value: recordId },
+              { column: 'value', value: contactValue },
+              { column: 'id_type_contact', value: '32607bfc-2894-4e01-89e4-9b47c9ad52b3' }, // TODO: change to default value
+            ],
+          })),
+        });
       }
     }
   };

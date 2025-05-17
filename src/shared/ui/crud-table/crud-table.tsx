@@ -100,9 +100,30 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   const { data, isLoading: isMainLoading } = useTableData<T>(tableName);
 
   // Получаем данные и состояния загрузки для связанных таблиц
-  const { relationsData, relationsLoading }: any = Object.entries(relations).reduce(
-    //@ts-ignore
-    (acc, [table]) => {
+  // Собираем уникальные имена таблиц из relations и formRelations
+  const uniqueTableNames = useMemo(() => {
+    const tables = new Set<string>();
+
+    // Добавляем таблицы из relations
+    Object.entries(relations).forEach(([key, rel]) => {
+      if (rel?.tableName) {
+        tables.add(rel.tableName);
+      }
+    });
+
+    // Добавляем таблицы из formRelations
+    Object.entries(formRelations).forEach(([key, rel]) => {
+      if (rel?.tableName) {
+        tables.add(rel.tableName);
+      }
+    });
+
+    return Array.from(tables);
+  }, [relations, formRelations]);
+
+  // Получаем данные и состояния загрузки для всех уникальных связанных таблиц
+  const { relationsData, relationsLoading }: any = uniqueTableNames.reduce(
+    (acc, table) => {
       const { data: relationData, isLoading } = useTableData(table);
       return {
         relationsData: { ...acc.relationsData, [table]: relationData },
@@ -318,7 +339,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     });
   };
 
-  const defaultAutoNumberFields = [`numb_${idField.split('_')[1]}`]
+  const defaultAutoNumberFields = [`numb_${idField.split('_')[1]}`];
 
   const modalProps = {
     opened: modalOpened,
@@ -332,7 +353,10 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
     relationsData,
     tableData: data,
     modalSize,
-    autoNumberFields: autoNumberFields?.length || isWithoutAutoNumberFields ? autoNumberFields : defaultAutoNumberFields,
+    autoNumberFields:
+      autoNumberFields?.length || isWithoutAutoNumberFields
+        ? autoNumberFields
+        : defaultAutoNumberFields,
   };
 
   // Вычисляем общие данные, если передан calculateData
@@ -343,9 +367,7 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
   return (
     <>
       {/* Используем additionalBlock для отображения общей информации */}
-      {additionalBlock && calculatedData && <Box mb={16} >
-        {additionalBlock(calculatedData)}
-      </Box>}
+      {additionalBlock && calculatedData && <Box mb={16}>{additionalBlock(calculatedData)}</Box>}
 
       <Flex mb="md" gap={16} direction="column">
         <Group>
@@ -415,11 +437,12 @@ export const CrudTable = <T extends { [key: string]: any }, N = T>({
         />
       </Drawer>
 
-      {isEditable && (CustomEditModal ? (
-        <CustomEditModal {...modalProps} />
-      ) : (
-        <UniversalEditModal {...modalProps} modalSize={modalSize} idField={idField} />
-      ))}
+      {isEditable &&
+        (CustomEditModal ? (
+          <CustomEditModal {...modalProps} />
+        ) : (
+          <UniversalEditModal {...modalProps} modalSize={modalSize} idField={idField} />
+        ))}
     </>
   );
 };
