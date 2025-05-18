@@ -56,7 +56,7 @@ export const CargoTable = () => {
       relations={CARGO_TABLE_RELATIONS}
       // @ts-ignore
       formRelations={CARGO_TABLE_FORM_RELATIONS}
-      modalSize="xl"
+      modalSize="xxl"
       searchableColumns={['number_cargo', 'name', 'client_name', 'carrier_name']}
     />
   );

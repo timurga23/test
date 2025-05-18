@@ -1,7 +1,6 @@
 import { ColumnType, ColumnTypeToValue } from '@/shared';
 import { DynamicInputs } from '@/shared/ui/dynamic-inputs/dynamic-inputs';
 import { PositionsEditor } from '@/shared/ui/positions-editor/positions-editor';
-import { DeliveryBlock } from '@/widgets';
 import {
   Button,
   MultiSelect,
@@ -274,9 +273,6 @@ export function UniversalForm<T extends Record<string, BaseColumn<keyof ColumnTy
                         disabled={column.disabled}
                       />
                     );
-                  case 'CUSTOM':
-                    // @ts-ignore
-                    return <DeliveryBlock value={defaultValues} onChange={field.onChange} />;
 
                   default:
                     return (
